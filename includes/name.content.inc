@@ -421,6 +421,16 @@ function _name_field_instance_settings_form($field, $instance = NULL) {
     );
   }
 
+  $form['preferred_field_reference'] = array(
+    '#type' => 'select',
+    '#title' => t('Preferred component source'),
+    '#empty_option' => t('-- none --'),
+    '#options' => name_get_additional_sources($instance),
+    '#default_value' => empty($settings['preferred_field_reference']) ? '' : $settings['preferred_field_reference'],
+    '#description' => t('A data source to use as the preferred given name within the name formats. A common use-case would be for a users nickname.')
+      . '<br>' . t('i.e. used in the name format options "q" and "v", plus the conditional "p", "x", "d" and "D".'),
+  );
+
   return $form;
 
 }

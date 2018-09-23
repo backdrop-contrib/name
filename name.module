@@ -285,6 +285,7 @@ function name_user_load(array $accounts) {
       else {
         if ($items = field_get_items('user', $acccount, $instance['field_name'])) {
           // We still have raw user input here.
+          $items[0] += name_field_parse_additional_components('user', $acccount, $instance);
           $accounts[$uid]->realname = name_format($items[0], $format, array('object' => $acccount, 'type' => 'user'));
           $names[$uid] = $accounts[$uid]->realname;
         }
@@ -942,6 +943,7 @@ function name_field_info() {
         'labels' => array_combine($keys, array_fill(0, $count, '')),
         // New settings to override the user name. Only applies to user entities.
         'override_format' => 'default',
+        'preferred_field_reference' => '',
         // Prevents the default break between the name components and credentials
         'credentials_inline' => 0,
         'component_css' => '',
@@ -1359,6 +1361,7 @@ function name_field_formatter_settings_summary($field, $instance, $view_mode) {
       $machine_name = 'default';
     }
   }
+
   // Provide an example of the selected format.
   module_load_include('admin.inc', 'name');
   $used_components = array_filter($field['settings']['components']);
@@ -1401,6 +1404,7 @@ function name_field_formatter_view($entity_type, $entity, $field, $instance, $la
     $format = name_get_format_by_machine_name('default');
   }
   foreach ($items as $delta => $item) {
+    $item += name_field_parse_additional_components($entity_type, $entity, $instance);
     // We still have raw user input here unless the markup flag has been used.
     $value = name_format($item, $format, array(
       'object' => $entity,
@@ -1432,6 +1436,80 @@ function name_field_formatter_view($entity_type, $entity, $field, $instance, $la
   }
 
   return $element;
+}
+
+/**
+ * Helper function to get alternative name component sources.
+ */
+function name_get_additional_sources($instance) {
+  $sources = array();
+  $info = entity_get_info();
+  $sources['_self'] = t('@label label', array(
+    '@label' => $info[$instance['entity_type']]['label'],
+  ));
+  if ($instance['entity_type'] == 'user') {
+    $sources['_self_property_name'] = t('@label login name', array(
+      '@label' => $info[$instance['entity_type']]['label'],
+    ));
+  }
+  foreach (field_info_instances($instance['entity_type'], $instance['bundle']) as $_field_name => $_instance) {
+    if ($_field_name != $instance['field_name']) {
+      $sources[$_field_name] = $_instance['label'];
+    }
+  }
+  return $sources;
+}
+
+/**
+ * Helper function to discover alternative name component sources.
+ */
+function name_field_parse_additional_components($entity_type, $entity, $instance) {
+  $settings = $instance['settings'];
+
+  $extra = array();
+  $map = array(
+    'preferred' => 'preferred_field_reference',
+  );
+  list(,,$bundle) = entity_extract_ids($entity_type, $entity);
+  foreach ($map as $component => $key) {
+    if (!empty($settings[$key])) {
+      if ($settings[$key] == '_self') {
+        if ($label = entity_label($entity_type, $entity)) {
+          $extra[$component] = $label;
+        }
+      }
+      elseif (strpos($settings[$key], '_self_property') === 0) {
+        $property = str_replace('_self_property_', '', $settings[$key]);
+        if (!empty($entity->{$property}) && is_scalar($entity->{$property})) {
+          $extra[$component] = $entity->{$property};
+        }
+      }
+      elseif ($_instance = field_info_instance($entity_type, $settings[$key], $bundle)) {
+        $_field = field_info_field($settings[$key]);
+        $_values = array();
+        if (field_access('view', $_field, $entity_type) || field_access('edit', $_field, $entity_type)) {
+          $clone = clone $entity;
+
+          $_langcode = field_language($entity_type, $entity, $settings[$key]);
+          // @todo
+          $_view_mode = 'default';
+          $_display = field_get_display($_instance, $_view_mode, $clone);
+          if ($_display['type'] == 'hidden') {
+            $cache = _field_info_field_cache();
+            $_display = array();
+            $_display = $cache->prepareInstanceDisplay($_display, $_field["type"]);
+          }
+          $_display['label'] = 'hidden';
+          $_element = field_view_field($entity_type, $clone, $settings[$key], $_display, $_langcode);
+          if ($output = trim(strip_tags(drupal_render($_element)))) {
+            $extra[$component] = decode_entities($output);
+          }
+        }
+      }
+    }
+  }
+
+  return $extra;
 }
 
 /**
