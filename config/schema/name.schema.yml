@@ -543,6 +543,89 @@ field.value.name:
         label: 'Credentials'
         type: string
 
+field.widget.settings.name_default:
+  type: mapping
+  label: 'Name field display format settings'
+  mapping:
+    override_field_settings:
+      type: boolean
+      label: 'Override field settings'
+    labels:
+      type: mapping
+      label: 'Labels'
+      mapping:
+        title:
+          type: label
+          label: 'Title'
+        given:
+          type: label
+          label: 'Given'
+        middle:
+          type: label
+          label: 'Middle'
+        family:
+          type: label
+          label: 'Family'
+        generational:
+          type: label
+          label: 'Generational'
+        credentials:
+          type: label
+          label: 'Credentials'
+    widget_layout:
+      type: string
+      label: 'Widget layout'
+    show_component_required_marker:
+      type: boolean
+      label: 'Show component required marker'
+    credentials_inline:
+      type: boolean
+      lable: 'Credentials inline'
+    size:
+      type: mapping
+      label: 'Field type'
+      mapping:
+        title:
+          label: 'Title'
+          type: integer
+        given:
+          label: 'Given'
+          type: integer
+        middle:
+          label: 'Middle'
+          type: integer
+        family:
+          label: 'Family'
+          type: integer
+        generational:
+          label: 'Generational'
+          type: integer
+        credentials:
+          label: 'Credentials'
+          type: integer
+    title_display:
+      type: mapping
+      label: 'Field type'
+      mapping:
+        title:
+          label: 'Title'
+          type: string
+        given:
+          label: 'Given'
+          type: string
+        middle:
+          label: 'Middle'
+          type: string
+        family:
+          label: 'Family'
+          type: string
+        generational:
+          label: 'Generational'
+          type: string
+        credentials:
+          label: 'Credentials'
+          type: string
+
 field.formatter.settings.name_default:
   type: mapping
   label: 'Name format settings'

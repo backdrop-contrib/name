@@ -10,13 +10,15 @@ use Drupal\Core\Field\FieldItemBase;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\TypedData\DataDefinition;
-use Drupal\name\Traits\NameSettingsTrait;
+use Drupal\name\Traits\NameFieldSettingsTrait;
+use Drupal\name\Traits\NameFormDisplaySettingsTrait;
+use Drupal\name\Traits\NameFormSettingsHelperTrait;
 
 /**
  * Plugin implementation of the 'name' field type.
  *
- * Majority of the settings handling is delegated to the trait
- * \Drupal\name\Traits\NameSettingsTrait so that these can be reused.
+ * Majority of the settings handling is delegated to the traits so that these
+ * can be reused.
  *
  * @FieldType(
  *   id = "name",
@@ -28,7 +30,9 @@ use Drupal\name\Traits\NameSettingsTrait;
  */
 class NameItem extends FieldItemBase {
 
-  use NameSettingsTrait;
+  use NameFieldSettingsTrait;
+  use NameFormDisplaySettingsTrait;
+  use NameFormSettingsHelperTrait;
 
   /**
    * Definition of name field components.
@@ -69,7 +73,8 @@ class NameItem extends FieldItemBase {
    * {@inheritdoc}
    */
   public static function defaultFieldSettings() {
-    $settings = self::getDefaultNameSettings();
+    $settings = self::getDefaultNameFieldSettings();
+    $settings += self::getDefaultNameFormDisplaySettings();
     $settings['override_format'] = 'default';
     return $settings + parent::defaultFieldSettings();
   }
@@ -166,7 +171,9 @@ class NameItem extends FieldItemBase {
    */
   public function fieldSettingsForm(array $form, FormStateInterface $form_state) {
     $settings = $this->getSettings();
-    $element = $this->getDefaultNameSettingsForm($settings, $form, $form_state);
+    $element = $this->getDefaultNameFieldSettingsForm($settings, $form, $form_state);
+    $element += $this->getDefaultNameFormDisplaySettingsForm($settings, $form, $form_state);
+    $element['#pre_render'][] = [$this, 'fieldSettingsFormPreRender'];
 
     // @todo: Port this feature to Drupal 8.
     //    $extra_max_info = '<div>' . t('This can not be less than the longest value in the database. The minimum values are:') . '</div>';
@@ -213,14 +220,16 @@ class NameItem extends FieldItemBase {
           '@cache_link' => Link::fromTextAndUrl('Performance cache', Url::fromRoute('system.performance_settings'))->toString(),
         ]),
         '#default_value' => (($preferred_field == $this->getFieldDefinition()->getName()) ? 1 : 0),
-        '#table_group' => 'none',
+        '#table_group' => 'above',
+        '#weight' => -100,
       ];
 
       // Store the machine name of the Name field.
       $element['name_user_preferred_fieldname'] = [
         '#type' => 'hidden',
         '#default_value' => $this->getFieldDefinition()->getName(),
-        '#table_group' => 'none',
+        '#table_group' => 'above',
+        '#weight' => -99,
       ];
 
       $element['override_format'] = [
@@ -228,7 +237,8 @@ class NameItem extends FieldItemBase {
         '#title' => $this->t('User name override format to use'),
         '#default_value' => $this->getSetting('override_format'),
         '#options' => name_get_custom_format_options(),
-        '#table_group' => 'none',
+        '#table_group' => 'above',
+        '#weight' => -98,
       ];
 
       $element['#element_validate'] = [[get_class($this), 'validateUserPreferred']];
