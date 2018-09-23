@@ -2,7 +2,6 @@
 
 namespace Drupal\name\Plugin\Field\FieldFormatter;
 
-use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Url;
@@ -380,75 +379,19 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
    *   The name formatters FieldItemList.
    *
    * @return array
-   *   Returns a Url object.
+   *   An array of any additional components if set.
    */
   protected function parseAdditionalComponents(FieldItemListInterface $items) {
     $extra = [];
-    $map = [
-      'preferred' => 'preferred_field_reference',
-      'alternative' => 'alternative_field_reference',
-    ];
-    $parent = $items->getEntity();
-    foreach ($map as $component => $key) {
-      $key_value = $this->getSetting($key);
-      $sep_value = $this->getSetting($key . '_separator');
+    foreach (['preferred', 'alternative'] as $component => $key) {
+      $key_value = $this->getSetting($key . '_field_reference');
+      $sep_value = $this->getSetting($key . '_field_reference_separator');
       if (!$key_value) {
         $key_value = $this->fieldDefinition->getSetting($key);
         $sep_value = $this->fieldDefinition->getSetting($key . '_separator');
       }
-      if ($key_value) {
-        if ($key_value == '_self') {
-          if ($label = $parent->label()) {
-            $extra[$component] = $label;
-          }
-        }
-        elseif (strpos($key_value, '_self_property') === 0) {
-          $property = str_replace('_self_property_', '', $key_value);
-          try {
-            if ($item = $parent->get($property)) {
-              if (!empty($item->value)) {
-                $extra[$component] = $item->value;
-              }
-            }
-          }
-          catch (\InvalidArgumentException $e) {}
-        }
-        elseif ($parent->hasField($key_value)) {
-          $target_items = $parent->get($key_value);
-          if (!$target_items->isEmpty() && $target_items->access('view')) {
-            $field = $target_items->getFieldDefinition();
-            $values = [];
-            switch ($field->getType()) {
-              case 'entity_reference':
-                foreach ($target_items as $item) {
-                  if (!empty($item->entity) && $item->entity->access('view') && ($label = $item->entity->label())) {
-                    $values[] = $label;
-                  }
-                }
-                break;
-
-              default:
-                $viewBuilder = $this->entityTypeManager->getViewBuilder($parent->getEntityTypeId());
-                foreach ($target_items as $item) {
-                  $renderable = $viewBuilder->viewFieldItem($item, ['label' => 'hidden']);
-                  /* @var $value \Drupal\Component\Render\MarkupInterface */
-                  if ($value = (string) $this->renderer->render($renderable)) {
-                    // Remove any markup, but decode entities as the parser
-                    // requires raw unescaped strings.
-                    if ($value = trim(strip_tags($value))) {
-                      $values[] = HTML::decodeEntities($value);
-                    }
-                  }
-                }
-                break;
-
-            }
-            if ($values) {
-              $sep_value = HTML::decodeEntities(trim(strip_tags($sep_value)));
-              $extra[$component] = implode($sep_value, $values);
-            }
-          }
-        }
+      if ($value = name_get_additional_component($this->entityTypeManager, $this->renderer, $items, $key_value, $sep_value)) {
+        $extra[$component] = $value;
       }
     }
 

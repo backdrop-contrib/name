@@ -20,6 +20,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Template\Attribute;
+use Drupal\Core\Entity\EntityTypeManager;
+use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Render\RendererInterface;
 
 /**
  * Helper function to get any defined name widget layout options.
@@ -169,13 +172,97 @@ function name_user_load(array $users) {
       }
       else {
         if ($account->hasField($field->getName()) && !$account->get($field->getName())->isEmpty()) {
-          // @todo: see if the formatter flags the preferred or alt components.
-          $names[$uid] = \Drupal::service('name.formatter')->format($account->get($field->getName())->get(0)->getValue(), $field->getSetting('override_format'));
+          $manager = \Drupal::service('entity_type.manager');
+          $renderer = \Drupal::service('renderer');
+          $components = $account->get($field->getName())->get(0)->getValue();
+          foreach (['preferred', 'alternative'] as $key) {
+            if ($key_value = $field->getSetting($key . '_field_reference')) {
+              $sep_value = $field->getSetting($key . '_field_reference_separator');
+              if ($value = name_get_additional_component($manager, $renderer, $account->get($field->getName()), $key_value, $sep_value)) {
+                $components[$key] = $value;
+              }
+            }
+          }
+          $names[$uid] = \Drupal::service('name.formatter')->format($components, $field->getSetting('override_format'));
           $users[$uid]->realname = $names[$uid];
         }
       }
     }
   }
+}
+
+/**
+ * Helper function to an additional component for an item.
+ *
+ * @param \Drupal\Core\Entity\EntityTypeManager $entityTypeManager
+ * @param \Drupal\Core\Render\RendererInterface $renderer
+ * @param \Drupal\Core\Field\FieldItemListInterface $items
+ * @param $key_value
+ * @param $sep_value
+ *
+ * @return string
+ */
+function name_get_additional_component(EntityTypeManager $entityTypeManager, RendererInterface $renderer, FieldItemListInterface $items, $key_value, $sep_value) {
+  if ($key_value) {
+    $parent = $items->getEntity();
+    if ($key_value == '_self') {
+      if ($label = $parent->label()) {
+        return $label;
+      }
+    }
+    elseif (strpos($key_value, '_self_property') === 0) {
+      $property = str_replace('_self_property_', '', $key_value);
+      try {
+        if ($item = $parent->get($property)) {
+          if (!empty($item->value)) {
+            return $item->value;
+          }
+        }
+      }
+      catch (\InvalidArgumentException $e) {}
+    }
+    elseif ($parent->hasField($key_value)) {
+      $target_items = $parent->get($key_value);
+      if (!$target_items->isEmpty() && $target_items->access('view')) {
+        $field = $target_items->getFieldDefinition();
+        $values = [];
+        switch ($field->getType()) {
+          case 'entity_reference':
+            foreach ($target_items as $item) {
+              if (!empty($item->entity) && $item->entity->access('view') && ($label = $item->entity->label())) {
+                $values[] = $label;
+              }
+            }
+            break;
+
+          default:
+            $viewBuilder = $entityTypeManager->getViewBuilder($parent->getEntityTypeId());
+            foreach ($target_items as $item) {
+              try {
+                $renderable = $viewBuilder->viewFieldItem($item, ['label' => 'hidden']);
+                /* @var $value \Drupal\Component\Render\MarkupInterface */
+                if ($value = (string) $renderer->render($renderable)) {
+                  // Remove any markup, but decode entities as the parser
+                  // requires raw unescaped strings.
+                  if ($value = trim(strip_tags($value))) {
+                    $values[] = HTML::decodeEntities($value);
+                  }
+                }
+              }
+              catch (\Exception $e) {}
+            }
+            break;
+
+        }
+        if ($values) {
+          $sep_value = HTML::decodeEntities(trim(strip_tags($sep_value)));
+          return implode($sep_value, $values);
+        }
+      }
+    }
+  }
+
+  return '';
 }
 
 /**
