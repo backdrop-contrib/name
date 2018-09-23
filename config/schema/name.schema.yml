@@ -62,15 +62,6 @@ name.settings:
     component_required_marker:
       type: string
       label: 'Component required marker'
-    element_wrapper:
-      type: boolean
-      label: 'Element wrapper'
-    inline_styles:
-      type: string
-      label: 'Inline styles'
-    inline_styles_rtl:
-      type: string
-      label: 'Inline styles (RTL)'
     sep1:
       type: string
       label: 'Separator 1'
@@ -447,9 +438,9 @@ field.field_settings.name:
       label: 'Sort options'
       sequence:
         - type: boolean
-    component_css:
+    widget_layout:
       type: string
-      label: 'Component CSS'
+      label: 'Widget layout'
     component_layout:
       type: string
       label: 'Component layout'
@@ -507,28 +498,6 @@ field.field_settings.name:
           label: 'Credentials'
           type: integer
     title_display:
-      type: mapping
-      label: 'Field type'
-      mapping:
-        title:
-          label: 'Title'
-          type: string
-        given:
-          label: 'Given'
-          type: string
-        middle:
-          label: 'Middle'
-          type: string
-        family:
-          label: 'Family'
-          type: string
-        generational:
-          label: 'Generational'
-          type: string
-        credentials:
-          label: 'Credentials'
-          type: string
-    inline_css:
       type: mapping
       label: 'Field type'
       mapping:

@@ -297,13 +297,6 @@ class NameFieldTest extends NameTestBase {
       'settings[size][family]' => 20,
       'settings[size][generational]' => 5,
       'settings[size][credentials]' => 35,
-
-      'settings[inline_css][title]' => '',
-      'settings[inline_css][given]' => '',
-      'settings[inline_css][middle]' => '',
-      'settings[inline_css][family]' => '',
-      'settings[inline_css][generational]' => '',
-      'settings[inline_css][credentials]' => '',
     ];
 
     $this->resetAll();

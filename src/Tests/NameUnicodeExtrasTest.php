@@ -72,7 +72,7 @@ class NameUnicodeExtrasTest extends UnitTestCase {
       'greek' => [
         'string' => 'Σὲ γνωρίζω ἀπὸ τὴν κόψη',
         'count' => 5,
-        'initials' => 'Σγἀτκ',
+        'initials' => 'ΣΓἈΤΚ',
       ],
       'georgian' => [
         'string' => 'გთხოვთ ახლავე გაიაროთ რეგისტრაცია',
@@ -82,7 +82,7 @@ class NameUnicodeExtrasTest extends UnitTestCase {
       'russian' => [
         'string' => 'Зарегистрируйтесь сейчас на Десятую Международную Конференцию',
         'count' => 6,
-        'initials' => 'ЗснДМК',
+        'initials' => 'ЗСНДМК',
       ],
       'ethiopian' => [
         'string' => 'ሰማይ አይታረስ ንጉሥ አይከሰስ',

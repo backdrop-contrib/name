@@ -172,3 +172,35 @@ function name_post_update_field_settings_merge() {
     $field_storage->setSettings($storage_settings)->save();
   }
 }
+
+/**
+ * Removes the inline CSS settings and sets the widget layout.
+ */
+function name_post_update_field_settings_remove_inline_css() {
+  $field_storage_configs = \Drupal::entityTypeManager()
+    ->getStorage('field_storage_config')
+    ->loadByProperties(['type' => 'name']);
+  foreach ($field_storage_configs as $field_storage) {
+    /* @var \Drupal\field\Entity\FieldStorageConfig $field_storage */
+    $field_name = $field_storage->getName();
+    $fields = \Drupal::entityTypeManager()
+      ->getStorage('field_config')
+      ->loadByProperties(['field_name' => $field_name]);
+    foreach ($fields as $field) {
+      /* @var \Drupal\field\Entity\FieldConfig $field */
+      $field_settings = $field->getSettings();
+      unset($field_settings['inline_css']);
+      unset($field_settings['component_css']);
+      if (empty($field_settings['widget_layout'])) {
+        $field_settings['widget_layout'] = 'stacked';
+      }
+      $field->setSettings($field_settings)->save();
+    }
+  }
+
+  \Drupal::service('config.factory')->getEditable('name.settings')
+      ->clear('element_wrapper')
+      ->clear('inline_styles')
+      ->clear('inline_styles_rtl')
+      ->save();
+}

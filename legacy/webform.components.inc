@@ -166,11 +166,6 @@ function _webform_edit_name($name) {
       '#size' => 10,
       '#element_validate' => ['_element_validate_integer_positive'],
     ];
-    $form['extra']['components'][$key]['inline_css'] = [
-      '#type' => 'textfield',
-      '#title' => t('Additional inline styles'),
-      '#default_value' => $name['extra']['components'][$key]['inline_css'],
-    ];
     $form['extra']['components'][$key]['max_length'] = [
       '#type' => 'textfield',
       '#title' => t('Maximum length'),

@@ -117,16 +117,6 @@ class NameWidgetTest extends NameTestBase {
       'settings[size][generational]' => 5,
       'settings[size][credentials]' => 35,
 
-      'settings[inline_css][title]' => 'width: 10px;',
-      'settings[inline_css][given]' => 'width: 20px;',
-      'settings[inline_css][middle]' => 'width: 30px;',
-      'settings[inline_css][family]' => 'width: 40px;',
-      'settings[inline_css][generational]' => 'width: 50px;',
-      'settings[inline_css][credentials]' => 'width: 60px;',
-
-      // Nothing = default, <none> means none.
-      'settings[component_css]' => 'clear: left;',
-
       'settings[credentials_inline]' => TRUE,
 
       'settings[sort_options][title]' => TRUE,
@@ -229,12 +219,11 @@ class NameWidgetTest extends NameTestBase {
 
     $this->assertTrue(preg_match($regexp, $content), t('Generational field wrapper classes appear to be in the correct order.'));
 
-    // @todo: Tests for settings[component_css] setting.
     // @todo: Tests for settings[credentials_inline] setting.
   }
 
   protected function assetComponentSettings($key, $settings) {
-    $xpath = '//div[@class=:value]';
+    $xpath = '//div[contains(@class,:value)]';
     $elements = $this->xpath($this->buildXPathQuery($xpath, [':value' => "name-{$key}-wrapper"]));
     if (!$elements) {
       $this->assertTrue(FALSE, "Component $key field found.");
@@ -318,10 +307,6 @@ class NameWidgetTest extends NameTestBase {
     if (isset($settings["settings[size][{$key}]"]) && $type != 'select') {
       $result = preg_match('@<' . $type . ' [^>]*?size="' . $settings["settings[size][{$key}]"] . '"@', $content);
       $this->assertTrue($result, "Testing size is set on field of type $type for $key component.");
-    }
-    if (isset($settings["settings[inline_css][{$key}]"])) {
-      $result = preg_match('@<' . $type . ' [^>]*?style="' . preg_quote(HTML::escape($settings["settings[inline_css][{$key}]"])) . '"@', $content);
-      $this->assertTrue($result, "Testing inline css is set on field of type $type for $key component.");
     }
   }
 

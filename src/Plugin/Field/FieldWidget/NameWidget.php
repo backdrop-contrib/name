@@ -83,7 +83,7 @@ class NameWidget extends WidgetBase implements ContainerFactoryPluginInterface {
       '#default_value' => isset($items[$delta]) ? $items[$delta]->getValue() : NULL,
       '#field' => $this,
       '#credentials_inline' => empty($field_settings['credentials_inline']) ? 0 : 1,
-      '#component_css' => empty($field_settings['component_css']) ? '' : $field_settings['component_css'],
+      '#widget_layout' => empty($field_settings['widget_layout']) ? 'stacked' : $field_settings['widget_layout'],
       '#component_layout' => empty($field_settings['component_layout']) ? 'default' : $field_settings['component_layout'],
       '#show_component_required_marker' => !empty($field_settings['show_component_required_marker']),
     ];
@@ -128,12 +128,6 @@ class NameWidget extends WidgetBase implements ContainerFactoryPluginInterface {
               ];
             }
           }
-        }
-
-        if (isset($field_settings['inline_css'][$key]) && Unicode::strlen($field_settings['inline_css'][$key])) {
-          $element['#components'][$key]['attributes'] = [
-            'style' => $field_settings['inline_css'][$key],
-          ];
         }
       }
       else {

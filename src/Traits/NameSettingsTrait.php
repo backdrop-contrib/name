@@ -79,14 +79,6 @@ trait NameSettingsTrait {
         'generational' => 'description',
         'credentials' => 'description',
       ],
-      'inline_css' => [
-        'title' => '',
-        'given' => '',
-        'middle' => '',
-        'family' => '',
-        'generational' => '',
-        'credentials' => '',
-      ],
       'autocomplete_source' => [
         'title' => [
           'title',
@@ -139,7 +131,7 @@ trait NameSettingsTrait {
         'generational' => FALSE,
         'credentials' => FALSE,
       ],
-      'component_css' => '',
+      'widget_layout' => 'stacked',
       'component_layout' => 'default',
       'show_component_required_marker' => FALSE,
       'credentials_inline' => FALSE,
@@ -252,27 +244,16 @@ trait NameSettingsTrait {
       '#title' => $this->t('HTML size'),
       '#description' => $this->t('The HTML size property tells the browser what the width of the field should be when it is rendered. This gets overriden by the themes CSS properties. This must be between 1 and 255.'),
     ];
-    $element['inline_css'] = [
-      '#title' => $this->t('Inline styles'),
-      '#description' => $this->t('Additional inline styles for the input element. i.e. "width: 45px; background-color: #f3f3f3".'),
-    ];
     // Placeholder for additional fields to couple with the styles section.
-    $element['inline_css_extra'] = [
+    $element['display_extra'] = [
       '#indent_row' => TRUE,
-    ];
-    $element['component_css'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Component separator CSS'),
-      '#default_value' => $this->getSetting('component_css'),
-      '#description' => $this->t('Use this to override the default CSS used when rendering each component. Use "&lt;none&gt;" to prevent the use of inline CSS.'),
-      '#table_group' => 'inline_css_extra',
     ];
     $element['credentials_inline'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Show the credentials inline'),
       '#default_value' => $this->getSetting('credentials_inline'),
       '#description' => $this->t('The default position is to show the credentials on a line by themselves. This option overrides this to render the component inline.'),
-      '#table_group' => 'inline_css_extra',
+      '#table_group' => 'display_extra',
     ];
 
     $sort_options = is_array($settings['sort_options']) ? $settings['sort_options'] : [
@@ -371,14 +352,6 @@ trait NameSettingsTrait {
         '#default_value' => $settings['title_display'][$key],
         '#options' => $title_display_options,
       ];
-
-      $element['inline_css'][$key] = [
-        '#type' => 'textfield',
-        '#title' => $this->t('Additional inline styles for @title input element.', ['@title' => $title]),
-        '#title_display' => 'invisible',
-        '#default_value' => $settings['inline_css'][$key],
-        '#size' => 8,
-      ];
     }
 
     // TODO - Grouping & grouping sort
@@ -423,6 +396,19 @@ trait NameSettingsTrait {
         ]);
     }
 
+    $widget_layout_options = [];
+    foreach (name_widget_layouts() as $layout => $info) {
+      $widget_layout_options[$layout] = $info['label'];
+    }
+    $element['widget_layout'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Widget layout'),
+      '#default_value' => $this->getSetting('widget_layout'),
+      '#options' => $widget_layout_options,
+      '#table_group' => 'none',
+      '#required' => TRUE,
+    ];
+
     $items = [
       $this->t('The order for Asian names is Family Middle Given Title Credentials'),
       $this->t('The order for Eastern names is Title Family Given Middle Credentials'),
@@ -448,6 +434,7 @@ trait NameSettingsTrait {
       ],
       '#description' => $layout_description,
       '#table_group' => 'none',
+      '#required' => TRUE,
     ];
 
     $element['#pre_render'][] = [$this, 'fieldSettingsFormPreRender'];
