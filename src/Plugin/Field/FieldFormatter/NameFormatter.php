@@ -15,6 +15,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\name\NameFormatParser;
 use Drupal\name\NameGeneratorInterface;
+use Drupal\name\Traits\NameAdditionalPreferredTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -34,6 +35,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * )
  */
 class NameFormatter extends FormatterBase implements ContainerFactoryPluginInterface {
+
+  use NameAdditionalPreferredTrait;
 
   /**
    * The entity field manager.
@@ -146,18 +149,13 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
    */
   public static function defaultSettings() {
     $settings = parent::defaultSettings();
-
     $settings += [
       "format" => "default",
       "markup" => "none",
       "list_format" => "",
       "link_target" => "",
-      "preferred_field_reference" => "",
-      "preferred_field_reference_separator" => ", ",
-      "alternative_field_reference" => "",
-      "alternative_field_reference_separator" => ", ",
     ];
-
+    $settings += self::getDefaultAdditionalPreferredSettings();
     return $settings;
   }
 
@@ -166,8 +164,6 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $elements = parent::settingsForm($form, $form_state);
-    $field_name = $this->fieldDefinition->getName();
-
     $elements['format'] = [
       '#type' => 'select',
       '#title' => $this->t('Name format'),
@@ -201,47 +197,7 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
       '#options' => $this->getLinkableTargets(),
     ];
 
-    $elements['preferred_field_reference'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Preferred component source'),
-      '#default_value' => $this->getSetting('preferred_field_reference'),
-      '#empty_option' => $this->t('-- none --'),
-      '#options' => $this->getAdditionalSources(),
-      '#description' => $this->t('A data source to use as the preferred given name within the name formats. A common use-case would be for a users nickname.<br>i.e. "q" and "v", plus the conditional "p", "d" and "D" name format options.'),
-    ];
-
-    $elements['preferred_field_reference_separator'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Preferred component source multivalue separator'),
-      '#default_value' => $this->getSetting('preferred_field_reference_separator'),
-      '#description' => $this->t('Used to separate multi-value items in an inline list.'),
-      '#states' => [
-        'invisible' => [
-          ':input[name="fields[' . $field_name . '][settings_edit_form][settings][preferred_field_reference]"]' => ['value' => ''],
-        ],
-      ],
-    ];
-
-    $elements['alternative_field_reference'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Alternative component source'),
-      '#default_value' => $this->getSetting('alternative_field_reference'),
-      '#empty_option' => $this->t('-- none --'),
-      '#options' => $this->getAdditionalSources(),
-      '#description' => $this->t('A data source to use as the alternative component within the name formats. Possible use-cases include; providing a custom fully formatted name alternative to use in citations; a separate field for a users creditatons / post-nominal letters.<br>i.e. "a" and "A" name format options.'),
-    ];
-
-    $elements['alternative_field_reference_separator'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Alternative component source multivalue separator'),
-      '#default_value' => $this->getSetting('alternative_field_reference_separator'),
-      '#description' => $this->t('Used to separate multi-value items in an inline list.'),
-      '#states' => [
-        'invisible' => [
-          ':input[name="fields[' . $field_name . '][settings_edit_form][settings][alternative_field_reference]"]' => ['value' => ''],
-        ],
-      ],
-    ];
+    $elements += $this->getNameAdditionalPreferredSettingsForm($form, $form_state);
 
     return $elements;
   }
@@ -253,8 +209,6 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
     $settings = $this->getSettings();
     $summary = [];
 
-    $field_name = $this->fieldDefinition->getName();
-
     $machine_name = isset($settings['format']) ? $settings['format'] : 'default';
     $name_format = $this->entityTypeManager->getStorage('name_format')->load($machine_name);
     if ($name_format) {
@@ -265,7 +219,6 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
     }
     else {
       $summary[] = $this->t('Format: <strong>Missing format.</strong><br/>This field will be displayed using the Default format.');
-      $machine_name = 'default';
     }
 
     $markup_options = $this->parser->getMarkupOptions();
@@ -279,18 +232,8 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
         '@target' => empty($targets[$settings['link_target']]) ? t('-- invalid --') : $targets[$settings['link_target']],
       ]);
     }
-    if (!empty($settings['preferred_field_reference'])) {
-      $targets = $this->getAdditionalSources();
-      $summary[] = $this->t('Preferred: @label', [
-        '@label' => empty($targets[$settings['preferred_field_reference']]) ? t('-- invalid --') : $targets[$settings['preferred_field_reference']],
-      ]);
-    }
-    if (!empty($settings['alternative_field_reference'])) {
-      $targets = $this->getAdditionalSources();
-      $summary[] = $this->t('Alternative: @label', [
-        '@label' => empty($targets[$settings['alternative_field_reference']]) ? t('-- invalid --') : $targets[$settings['alternative_field_reference']],
-      ]);
-    }
+
+    $this->settingsNameAdditionalPreferredSummary($summary);
 
     // Provide an example of the selected format.
     if ($name_format) {
@@ -430,31 +373,6 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
     return Url::fromRoute('<none>');
   }
 
-  protected function getAdditionalSources() {
-    $entity_type_id = $this->fieldDefinition->getTargetEntityTypeId();
-    $entity_type = $this->entityTypeManager
-        ->getStorage($entity_type_id)
-        ->getEntityType();
-    $bundle = $this->fieldDefinition->getTargetBundle();
-    $entity_type_label = $entity_type->getBundleLabel($bundle);
-    if (!$entity_type_label) {
-      $entity_type_label = $entity_type->getLabel();
-    }
-    $sources = [
-      '_self' => $this->t('@label label', ['@label' => $entity_type_label]),
-    ];
-    if ($entity_type_id == 'user') {
-      $sources['_self_property_name'] = $this->t('@label login name', ['@label' => $entity_type_label]);
-    }
-    $fields = $this->entityFieldManager->getFieldDefinitions($entity_type_id, $bundle);
-    foreach ($fields as $field_name => $field) {
-      if (!$field->getFieldStorageDefinition()->isBaseField() && $field_name != $this->fieldDefinition->getName()) {
-        $sources[$field->getName()] = $field->getLabel();
-      }
-    }
-    return $sources;
-  }
-
   /**
    * Gets any additional linked components.
    *
@@ -472,14 +390,20 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
     ];
     $parent = $items->getEntity();
     foreach ($map as $component => $key) {
-      if (!empty($this->settings[$key])) {
-        if ($this->settings[$key] == '_self') {
+      $key_value = $this->getSetting($key);
+      $sep_value = $this->getSetting($key . '_separator');
+      if (!$key_value) {
+        $key_value = $this->fieldDefinition->getSetting($key);
+        $sep_value = $this->fieldDefinition->getSetting($key . '_separator');
+      }
+      if ($key_value) {
+        if ($key_value == '_self') {
           if ($label = $parent->label()) {
             $extra[$component] = $label;
           }
         }
-        elseif (strpos($this->settings[$key], '_self_property') === 0) {
-          $property = str_replace('_self_property_', '', $this->settings[$key]);
+        elseif (strpos($key_value, '_self_property') === 0) {
+          $property = str_replace('_self_property_', '', $key_value);
           try {
             if ($item = $parent->get($property)) {
               if (!empty($item->value)) {
@@ -489,16 +413,14 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
           }
           catch (\InvalidArgumentException $e) {}
         }
-        elseif ($parent->hasField($this->settings[$key])) {
-          $target_items = $parent->get($this->settings[$key]);
+        elseif ($parent->hasField($key_value)) {
+          $target_items = $parent->get($key_value);
           if (!$target_items->isEmpty() && $target_items->access('view')) {
             $field = $target_items->getFieldDefinition();
             $values = [];
             switch ($field->getType()) {
               case 'entity_reference':
                 foreach ($target_items as $item) {
-                  /* @var \Drupal\Core\Entity\EntityInterface $entity */
-                  $entity = $item->entity;
                   if (!empty($item->entity) && $item->entity->access('view') && ($label = $item->entity->label())) {
                     $values[] = $label;
                   }
@@ -522,7 +444,8 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
 
             }
             if ($values) {
-              $extra[$component] = implode(', ', $values);
+              $sep_value = HTML::decodeEntities(trim(strip_tags($sep_value)));
+              $extra[$component] = implode($sep_value, $values);
             }
           }
         }

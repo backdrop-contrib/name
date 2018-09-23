@@ -13,6 +13,7 @@ use Drupal\Core\TypedData\DataDefinition;
 use Drupal\name\Traits\NameFieldSettingsTrait;
 use Drupal\name\Traits\NameFormDisplaySettingsTrait;
 use Drupal\name\Traits\NameFormSettingsHelperTrait;
+use Drupal\name\Traits\NameAdditionalPreferredTrait;
 
 /**
  * Plugin implementation of the 'name' field type.
@@ -33,6 +34,7 @@ class NameItem extends FieldItemBase {
   use NameFieldSettingsTrait;
   use NameFormDisplaySettingsTrait;
   use NameFormSettingsHelperTrait;
+  use NameAdditionalPreferredTrait;
 
   /**
    * Definition of name field components.
@@ -75,6 +77,7 @@ class NameItem extends FieldItemBase {
   public static function defaultFieldSettings() {
     $settings = self::getDefaultNameFieldSettings();
     $settings += self::getDefaultNameFormDisplaySettings();
+    $settings += self::getDefaultAdditionalPreferredSettings();
     $settings['override_format'] = 'default';
     return $settings + parent::defaultFieldSettings();
   }
@@ -173,6 +176,12 @@ class NameItem extends FieldItemBase {
     $settings = $this->getSettings();
     $element = $this->getDefaultNameFieldSettingsForm($settings, $form, $form_state);
     $element += $this->getDefaultNameFormDisplaySettingsForm($settings, $form, $form_state);
+    foreach ($this->getNameAdditionalPreferredSettingsForm($form, $form_state) as $key => $value) {
+      $element[$key] = $value;
+      $element[$key]['#table_group'] = 'none';
+      $element[$key]['#weight'] = 50;
+    }
+
     $element['#pre_render'][] = [$this, 'fieldSettingsFormPreRender'];
 
     // @todo: Port this feature to Drupal 8.

@@ -519,6 +519,18 @@ field.field_settings.name:
         credentials:
           label: 'Credentials'
           type: string
+    preferred_field_reference:
+      type: string
+      label: 'Preferred field reference'
+    preferred_field_reference_separator:
+      type: string
+      label: 'Preferred field reference multivalue separator'
+    alternative_field_reference:
+      type: string
+      label: 'Alternative field reference'
+    alternative_field_reference_separator:
+      type: string
+      label: 'Alternative field reference multivalue separator'
 
 field.value.name:
     type: mapping
