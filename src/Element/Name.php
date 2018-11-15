@@ -2,14 +2,15 @@
 
 namespace Drupal\name\Element;
 
-use Drupal\Core\Render\Element\RenderElement;
+use Drupal\Core\Render\Element\FormElement;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Provides a name render element.
  *
  * @RenderElement("name")
  */
-class Name extends RenderElement {
+class Name extends FormElement {
 
   /**
    * Returns the element properties for this element.
@@ -22,7 +23,8 @@ class Name extends RenderElement {
    */
   public function getInfo() {
     $parts = _name_translations();
-    $field_settings = \Drupal::service('plugin.manager.field.field_type')->getDefaultFieldSettings('name');
+    $field_settings = \Drupal::service('plugin.manager.field.field_type')
+      ->getDefaultFieldSettings('name');
 
     return [
       '#input' => TRUE,
@@ -94,6 +96,34 @@ class Name extends RenderElement {
         ],
       ],
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function valueCallback(&$element, $input, FormStateInterface $form_state) {
+    $value = [
+      'title' => '',
+      'given' => '',
+      'middle' => '',
+      'family' => '',
+      'generational' => '',
+      'credentials' => '',
+    ];
+    if ($input === FALSE) {
+      $element += ['#default_value' => []];
+      return $element['#default_value'] + $value;
+    }
+    // Throw out all invalid array keys; we only allow pass1 and pass2.
+    foreach ($value as $allowed_key => $default) {
+      // These should be strings, but allow other scalars since they might be
+      // valid input in programmatic form submissions. Any nested array values
+      // are ignored.
+      if (isset($input[$allowed_key]) && is_scalar($input[$allowed_key])) {
+        $value[$allowed_key] = (string) $input[$allowed_key];
+      }
+    }
+    return $value;
   }
 
 }
