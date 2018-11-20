@@ -380,10 +380,6 @@ function name_element_expand($element, &$form_state, $complete_form) {
   $parts = _name_translations();
   $components = $element['#components'];
   $min_components = (array) $element['#minimum_components'];
-  if (empty($element['#field'])) {
-    $element['#field'] = isset($form_state['field']) ? $form_state['field'] : NULL;
-  }
-
   foreach ($parts as $component => $title) {
     if (!isset($components[$component]['exclude'])) {
       $element[$component] = name_element_render_component($components, $component, $element, isset($min_components[$component]));
@@ -621,12 +617,6 @@ function name_element_pre_render($element) {
 
   if (!empty($element['#component_layout'])) {
     _name_component_layout($element['_name'], $element['#component_layout']);
-  }
-  if (!empty($element['#description']) && !isset($element['#field'])) {
-    $element['_description'] = [
-      '#value' => '<div class="clearfix description">' . $element['#description'] . '</div>',
-    ];
-    unset($element['#description']);
   }
 
   return $element;
