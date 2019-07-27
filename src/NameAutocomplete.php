@@ -113,10 +113,10 @@ class NameAutocomplete {
       }
       else {
         $sep = (string) $settings['autocomplete_separator'][$component];
-        if (empty($sep)) {
+        if (strlen($sep) === 0) {
           $sep = ' ';
         }
-        for ($i = 0; $i < count($sep); $i++) {
+        for ($i = 0; $i < strlen($sep); $i++) {
           if (strpos($action['separater'], $sep{$i}) === FALSE) {
             $action['separater'] .= $sep{$i};
           }
