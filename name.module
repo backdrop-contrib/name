@@ -743,7 +743,7 @@ function _name_render_component($components, $component_key, $base_element, $cor
     case 'description':
     default:
       $element['#title_display'] = 'invisible';
-      $element['#description'] = $element['#title'];
+      $element['#description'] = t($element['#title']);
       break;
   }
 
