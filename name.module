@@ -575,11 +575,18 @@ function theme_name_item_list($variables) {
   else {
     $t_args['!lastname'] = array_pop($items);
     $t_args['!names'] = implode($delimiter . ' ', $items);
-    if ($settings['multiple_and'] == 'text') {
-      $t_args['!and'] = t('and', array(), array('context' => 'name'));
-    }
-    else {
-      $t_args['!and'] = $settings['output'] == 'default' ? '&amp' : '&';
+    switch ($settings['multiple_and']) {
+      case 'text':
+        $t_args['!and'] = t('and', array(), array('context' => 'name'));
+        break;
+
+      case 'none':
+        $t_args['!and'] = '';
+        break;
+
+      default:
+        $t_args['!and'] = $settings['output'] == 'default' ? '&amp' : '&';
+        break;
     }
 
     // Strange rule from http://citationstyles.org/downloads/specification.html.
@@ -1300,6 +1307,7 @@ function name_field_formatter_settings_form($field, $instance, $view_mode, $form
     '#options' => array(
       'text' => t('Textual (and)'),
       'symbol' => t('Ampersand (&amp;)'),
+      'none' => t('None'),
     ),
     '#default_value' => $settings['multiple_and'],
     '#description' => t('This specifies the delimiter between the second to last and the last name.'),
