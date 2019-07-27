@@ -4,7 +4,7 @@ namespace Drupal\name\Tests;
 
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
-use Drupal\simpletest\KernelTestBase;
+use Drupal\KernelTests\KernelTestBase;
 use Drupal\user\Entity\User;
 
 /**

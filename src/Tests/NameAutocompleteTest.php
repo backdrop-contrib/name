@@ -3,7 +3,7 @@
 namespace Drupal\name\Tests;
 
 use Drupal\name\Controller\NameAutocompleteController;
-use Drupal\simpletest\KernelTestBase;
+use Drupal\KernelTests\KernelTestBase;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;

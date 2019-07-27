@@ -2,7 +2,6 @@
 
 namespace Drupal\name\Tests;
 
-use Drupal\simpletest\KernelTestBase;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\taxonomy\Entity\Vocabulary;
 
@@ -11,7 +10,7 @@ use Drupal\taxonomy\Entity\Vocabulary;
  *
  * @group name
  */
-class NameOptionsProviderTest extends KernelTestBase {
+class NameOptionsProviderTest extends NameTestBase {
 
   use NameTestTrait;
 
@@ -21,6 +20,7 @@ class NameOptionsProviderTest extends KernelTestBase {
     'taxonomy',
     'entity_test',
     'text',
+    'user'
   ];
 
   /**
@@ -40,10 +40,9 @@ class NameOptionsProviderTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  public function setUp() {
     parent::setUp();
 
-    $this->installConfig(self::$modules);
     $this->entityListener = \Drupal::service('entity_type.listener');
     $this->entityListener->onEntityTypeCreate(\Drupal::entityTypeManager()->getDefinition('taxonomy_term'));
 
