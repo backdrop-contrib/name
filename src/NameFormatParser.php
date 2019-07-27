@@ -304,7 +304,7 @@ class NameFormatParser {
               break;
 
             case 'T':
-              $string = trim($string);
+              $string = trim(preg_replace('/\s+/', ' ', $string));
               break;
 
             case 'S':
