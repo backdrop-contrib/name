@@ -3,7 +3,7 @@
 namespace Drupal\name\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Entity\EntityFieldManager;
-use Drupal\Core\Entity\EntityTypeManager;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Entity\Exception\UndefinedLinkTemplateException;
 use Drupal\Core\Field\FieldDefinitionInterface;
@@ -47,7 +47,7 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
   /**
    * The entity type manager.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManager
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
@@ -100,7 +100,7 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
    *   Any third party settings settings.
    * @param \Drupal\Core\Entity\EntityFieldManager $entityFieldManager
    *   The entity field manager.
-   * @param \Drupal\Core\Entity\EntityTypeManager $entityTypeManager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity type manager.
    * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The rendering service.
@@ -111,7 +111,7 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
    * @param \Drupal\name\NameGeneratorInterface $generator
    *   The name format parser.
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, EntityFieldManager $entityFieldManager, EntityTypeManager $entityTypeManager, RendererInterface $renderer, \Drupal\name\NameFormatter $formatter, NameFormatParser $parser, NameGeneratorInterface $generator) {
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, EntityFieldManager $entityFieldManager, EntityTypeManagerInterface $entityTypeManager, RendererInterface $renderer, \Drupal\name\NameFormatter $formatter, NameFormatParser $parser, NameGeneratorInterface $generator) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
 
     $this->entityFieldManager = $entityFieldManager;

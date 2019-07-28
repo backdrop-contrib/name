@@ -3,7 +3,7 @@
 namespace Drupal\name;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Entity\EntityTypeManager;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
@@ -79,7 +79,7 @@ class NameFormatter implements NameFormatterInterface {
   /**
    * Constructs a name formatter object.
    *
-   * @param \Drupal\Core\Entity\EntityTypeManager $entityTypeManager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity manager.
    * @param \Drupal\name\NameFormatParser $parser
    *   The name format parser.
@@ -90,7 +90,7 @@ class NameFormatter implements NameFormatterInterface {
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.
    */
-  public function __construct(EntityTypeManager $entityTypeManager, NameFormatParser $parser, LanguageManagerInterface $language_manager, TranslationInterface $translation, ConfigFactoryInterface $config_factory) {
+  public function __construct(EntityTypeManagerInterface $entityTypeManager, NameFormatParser $parser, LanguageManagerInterface $language_manager, TranslationInterface $translation, ConfigFactoryInterface $config_factory) {
     $this->nameFormatStorage = $entityTypeManager->getStorage('name_format');
     $this->listFormatStorage = $entityTypeManager->getStorage('name_list_format');
     $this->parser = $parser;

@@ -10,6 +10,7 @@
  * t('@name_given', ['@name_given' => t('Given')])
  */
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\field\FieldConfigInterface;
 use Drupal\user\UserInterface;
 use Drupal\user\Entity\User;
@@ -20,7 +21,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Template\Attribute;
-use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Render\RendererInterface;
 
@@ -194,7 +194,7 @@ function name_user_load(array $users) {
 /**
  * Helper function to an additional component for an item.
  *
- * @param \Drupal\Core\Entity\EntityTypeManager $entityTypeManager
+ * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
  * @param \Drupal\Core\Render\RendererInterface $renderer
  * @param \Drupal\Core\Field\FieldItemListInterface $items
  * @param $key_value
@@ -202,7 +202,7 @@ function name_user_load(array $users) {
  *
  * @return string
  */
-function name_get_additional_component(EntityTypeManager $entityTypeManager, RendererInterface $renderer, FieldItemListInterface $items, $key_value, $sep_value) {
+function name_get_additional_component(EntityTypeManagerInterface $entityTypeManager, RendererInterface $renderer, FieldItemListInterface $items, $key_value, $sep_value) {
   if ($key_value) {
     $parent = $items->getEntity();
     if ($key_value == '_self') {

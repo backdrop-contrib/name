@@ -3,7 +3,7 @@
 namespace Drupal\name;
 
 use Drupal\Component\Utility\Unicode;
-use Drupal\Core\Entity\EntityTypeManager;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 
@@ -22,7 +22,7 @@ class NameOptionsProvider {
   /**
    * The entity type manager.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManager
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
@@ -50,12 +50,12 @@ class NameOptionsProvider {
   /**
    * Contructs the service.
    *
-   * @param \Drupal\Core\Entity\EntityTypeManager $entityTypeManager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   The entity manager.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler.
    */
-  public function __construct(EntityTypeManager $entityTypeManager, ModuleHandlerInterface $module_handler) {
+  public function __construct(EntityTypeManagerInterface $entityTypeManager, ModuleHandlerInterface $module_handler) {
     $this->entityTypeManager = $entityTypeManager;
     $this->moduleHandler = $module_handler;
 
