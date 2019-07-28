@@ -168,7 +168,7 @@ class NameWidgetTest extends NameTestBase {
     $this->verbose('Testing show_component_required_marker unchecked.');
     $field_settings = [
       'settings[show_component_required_marker]' => FALSE,
-      'settings[component_layout]' => 'default'
+      'settings[component_layout]' => 'default',
 //      'settings[credentials_inline]' => TRUE,
 //      'settings[component_layout]' => 'default',
     ] + $field_settings;
@@ -202,15 +202,18 @@ class NameWidgetTest extends NameTestBase {
           $this->assertTrue(FALSE, "Generational field is not rendered with asian layout.");
         }
         break;
+
       case 'eastern':
         $regexp = '/name-title-wrapper.*name-family-wrapper.*name-given-wrapper.*name-middle-wrapper.*name-generational-wrapper.*name-credentials-wrapper.*/';
         break;
+
       case 'german':
         $regexp = '/name-title-wrapper.*name-credentials-wrapper.*name-given-wrapper.*name-middle-wrapper.*name-family-wrapper.*/';
         if (strpos($content, 'name-generational-wrapper')) {
           $this->assertTrue(FALSE, "Generational field is not rendered with german layout.");
         }
         break;
+
       case 'default':
       default:
         $regexp = '/name-title-wrapper.*name-given-wrapper.*name-middle-wrapper.*name-family-wrapper.*name-generational-wrapper.*name-credentials-wrapper.*/';
@@ -269,7 +272,7 @@ class NameWidgetTest extends NameTestBase {
         $result = preg_match('@<' . $type . ' [^>]*?placeholder=".*?' . $settings["settings[labels][$key]"] . '.*?"@', $content);
         $this->assertTrue($result, "Testing label is a placeholder on the field of type $type for $key component.");
         if ($result) {
-          $required_marker_preg = '@<' . $type . ' [^>]*?placeholder=".*?' .t('Required') . '.*?"@';
+          $required_marker_preg = '@<' . $type . ' [^>]*?placeholder=".*?' . t('Required') . '.*?"@';
           if ($show_required && $is_required) {
             $this->assertTrue(preg_match($required_marker_preg, $content), "Required text is added for $key component in placeholder attribute");
           }
@@ -283,7 +286,7 @@ class NameWidgetTest extends NameTestBase {
         $result = preg_match('@<' . $type . ' [^>]*?title=".*?' . $settings["settings[labels][$key]"] . '.*?"@', $content);
         $this->assertTrue($result, "Testing label is a title attribute on the field of type $type for $key component.");
         if ($result) {
-          $required_marker_preg = '@<' . $type . ' [^>]*?title=".*?' .t('Required') . '.*?"@';
+          $required_marker_preg = '@<' . $type . ' [^>]*?title=".*?' . t('Required') . '.*?"@';
           if ($show_required && $is_required) {
             $this->assertTrue(preg_match($required_marker_preg, $content), "Required text is added for $key component in $type title attribute");
           }
@@ -337,6 +340,8 @@ class NameWidgetTest extends NameTestBase {
   /**
    * Helper: Constructs an XPath for the given set of attributes and value.
    *
+   * @param string $type
+   *   Type of element.
    * @param string $attribute
    *   Field attributes.
    * @param string $value
@@ -346,7 +351,7 @@ class NameWidgetTest extends NameTestBase {
    *   XPath for specified values.
    */
   protected function constructFieldXpathByTypeAndAttribute($type, $attribute, $value) {
-    $xpath = '//' .$type . '[@' . $attribute . '=:value]';
+    $xpath = '//' . $type . '[@' . $attribute . '=:value]';
     return $this->buildXPathQuery($xpath, [':value' => $value]);
   }
 

@@ -4,6 +4,7 @@
  * @file
  * Standard installation functions for name.
  */
+
 use Symfony\Component\Yaml\Yaml;
 
 /**

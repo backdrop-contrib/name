@@ -39,7 +39,7 @@ class NameAdminTest extends NameTestBase {
         'title' => t('Default'),
         'machine' => 'default',
         'pattern' => '((((t+ig)+im)+if)+is)+jc',
-        'formatted' => '(1) Mr John Peter Mark Doe Jnr., B.Sc., Ph.D. (2) JOAN SUE SMITH (3) Prince'
+        'formatted' => '(1) Mr John Peter Mark Doe Jnr., B.Sc., Ph.D. (2) JOAN SUE SMITH (3) Prince',
       ],
       2 => [
         'title' => t('Family'),
@@ -222,7 +222,7 @@ class NameAdminTest extends NameTestBase {
 
     $this->drupalGet('admin/config/regional/name/list/add');
 
-    // All bar delimiter are required
+    // All bar delimiter are required.
     $values = [
       'label' => '',
       'id' => '',
@@ -285,7 +285,6 @@ class NameAdminTest extends NameTestBase {
       'delete link' => Url::fromRoute('entity.name_list_format.delete_form', ['name_list_format' => 'test'])->toString(),
     ];
     $this->assertRow($row, $row_template, 3);
-//
     $summary_text = [
       'Delimiters: " / " and Ampersand (&amp;)',
       'Reduce after 3 items and show 1 items followed by el al.',
@@ -306,7 +305,6 @@ class NameAdminTest extends NameTestBase {
     $this->assertText(t('The name list format @title has been deleted.', ['@title' => $values['label']]));
   }
 
-
   /**
    * Helper function to test a table cell via it's expected value.
    *
@@ -322,7 +320,6 @@ class NameAdminTest extends NameTestBase {
       if (isset($row_template[$cell_code])) {
         $xpath = str_replace('{row}', $id, $row_template[$cell_code]);
         $raw_xpath = $this->xpath($xpath);
-
 
         // Check URLs with or without the ?destination= query parameter.
         if (strpos($row_template[$cell_code], '/a/@href')) {
@@ -378,7 +375,7 @@ class NameAdminTest extends NameTestBase {
    * - removes newlines and ensures single whitespaces.
    * - trims the string for trailing whitespace.
    *
-   * @param array|FALSE $raw_xpath
+   * @param array|false $raw_xpath
    *   Raw results from the XML Path lookup.
    *
    * @return string

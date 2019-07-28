@@ -128,6 +128,8 @@ trait NameFieldSettingsTrait {
    *   The form where the settings form is being included in.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state of the (entire) configuration form.
+   * @param bool $has_data
+   *   A flag to indicate if the field has data.
    *
    * @return array
    *   The form definition for the field settings.
@@ -288,13 +290,13 @@ trait NameFieldSettingsTrait {
       // Terms that exceed the maximum length of the generational suffix are
       // not added to the options list.
       $element['title_options']['#description'] .= ' ' . $this->t("%label_plural may be also imported from one or more vocabularies using the tag '[vocabulary:xxx]', where xxx is the vocabulary machine-name or id. Terms that exceed the maximum length of the %label are not added to the options list.", [
-          '%label_plural' => $this->t('Titles'),
-          '%label' => $this->t('Title'),
-        ]);
+        '%label_plural' => $this->t('Titles'),
+        '%label' => $this->t('Title'),
+      ]);
       $element['generational_options']['#description'] .= ' ' . $this->t("%label_plural may be also imported from one or more vocabularies using the tag '[vocabulary:xxx]', where xxx is the vocabulary machine-name or id. Terms that exceed the maximum length of the %label are not added to the options list.", [
-          '%label_plural' => $this->t('Generational suffixes'),
-          '%label' => $this->t('Generational suffix'),
-        ]);
+        '%label_plural' => $this->t('Generational suffixes'),
+        '%label' => $this->t('Generational suffix'),
+      ]);
     }
 
     $items = [
@@ -385,7 +387,8 @@ trait NameFieldSettingsTrait {
    */
   public static function validateGenerationalOptions($element, FormStateInterface $form_state) {
     $values = static::extractAllowedValues($element['#value']);
-    $max_length = $form_state->getValue(['settings', 'max_length', 'generational']);
+    $max_length_keys = ['settings', 'max_length', 'generational'];
+    $max_length = $form_state->getValue($max_length_keys);
     static::validateOptions($element, $form_state, $values, $max_length);
   }
 

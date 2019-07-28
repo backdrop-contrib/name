@@ -25,8 +25,14 @@ class NameFormatParserTest extends UnitTestCase {
    */
   protected function setUp() {
     parent::setUp();
-
-    $config_factory = $this->getConfigFactoryStub(['name.settings' => ['sep1' => ', ', 'sep2' => ' ', 'sep3' => '']]);
+    $test_settings = [
+      'name.settings' => [
+        'sep1' => ',',
+        'sep2' => ' ',
+        'sep3' => '',
+      ],
+    ];
+    $config_factory = $this->getConfigFactoryStub($test_settings);
     $container = new ContainerBuilder();
     $container->set('config.factory', $config_factory);
     $container->set('string_translation', $this->getStringTranslationStub());
@@ -69,7 +75,7 @@ class NameFormatParserTest extends UnitTestCase {
   }
 
   /**
-   * Block Test NameFormatParser::parse
+   * Test NameFormatParser.
    *
    * @dataProvider patternDataProvider
    */
@@ -90,6 +96,7 @@ class NameFormatParserTest extends UnitTestCase {
    * Helper function to provide data for testParser.
    *
    * @return array
+   *   The data to test.
    */
   protected function names() {
     return [
@@ -166,9 +173,9 @@ class NameFormatParserTest extends UnitTestCase {
           '(g))()(' => 'John)(',
           // Insert the token if both the surrounding tokens are not empty.
           'g+ f' => 'John',
-          // Insert the token, if and only if the next token after it is not empty.
+          // Insert the token, iff the next token after it is not empty.
           'g= f' => 'John',
-          // Skip the token, if and only if the next token after it is not empty.
+          // Skip the token, iff the next token after it is not empty.
           'g^ f' => 'John ',
           // Uses only the first one.
           's|c|g|m|f|t' => 'John',
@@ -177,7 +184,8 @@ class NameFormatParserTest extends UnitTestCase {
           // Real world examples.
           // Full name with a comma-space before credentials.
           'L(t= g= m= f= s=,(= c))' => ' john',
-          // Full name with a comma-space before credentials. ucfirst does not work on a whitespace.
+          // Full name with a comma-space before credentials. ucfirst does not
+          // work on a whitespace.
           'TS(LF(t= g= m= f= s)=,(= c))' => 'john',
           // Full name with a comma-space before credentials.
           'L(t+ g+ m+ f+ s+,(= c))' => 'john',
@@ -237,9 +245,9 @@ class NameFormatParserTest extends UnitTestCase {
           'K' => 'J',
           // Initials (all) from given and middle.
           'M' => 'JP',
-          // Either the preferred or family name. Preferred name is given preference.
+          // Either the preferred or family name. Preferred is given preference.
           'd' => 'peTe',
-          // Either the preferred or family name. Family name is given preference.
+          // Either the preferred or family name. Family is given preference.
           'D' => 'dOE',
           // Either the given or family name. Given name is given preference.
           'e' => 'JoHn',
@@ -294,7 +302,7 @@ class NameFormatParserTest extends UnitTestCase {
           '(((t g m f s c)))' => 'MR. JoHn pEter dOE sR b.Sc, pHd',
           // Brackets - mismatched.
           '(t g m f s c))()(' => 'MR. JoHn pEter dOE sR b.Sc, pHd)(',
-          // Insert the token, if and only if the next token after it is not empty.
+          // Insert the token, iff the next token after it is not empty.
           't= g= m= f= s= c' => 'MR. JoHn pEter dOE sR b.Sc, pHd',
           // Uses the previous token unless empty, otherwise it uses this token.
           'g|m|f' => 'JoHn',
@@ -311,9 +319,9 @@ class NameFormatParserTest extends UnitTestCase {
           'L(t= g= m= f= s=,(= c))' => 'mr. john peter doe sr, b.sc, phd',
           // Full name with a comma-space before credentials.
           'TS(LG(t= g= m= f= s)=,LG(= c))' => 'Mr. John Peter Doe Sr, B.Sc, Phd',
-          // Alternative or full name followed by a comma-space before credentials.
+          // Alt or full name followed by a comma-space before credentials.
           'TS(a|LG(t= g= m= f= s)=,LG(= c))' => 'aLt, B.Sc, Phd',
-          // Full name or alternative followed by a comma-space before credentials.
+          // Full name or alt followed by a comma-space before credentials.
           'TS((LG(t= g= m= f= s)|a)=,LG(= c))' => 'Mr. John Peter Doe Sr, B.Sc, Phd',
           // Full name including preferred name (nickname).
           'TS(LG(((t+ig+i(=\(q-\)))+im)+if)+iLG(s))' => 'Mr. John (Pete) Peter Doe Sr',

@@ -23,11 +23,15 @@ class NameNodeTokenReplaceTest extends NameTestBase {
   public static $modules = ['node', 'filter', 'token'];
 
   /**
+   * The name formatter.
+   *
    * @var \Drupal\name\NameFormatterInterface
    */
   protected $formatter;
 
   /**
+   * The token service.
+   *
    * @var \Drupal\Core\Utility\Token
    */
   protected $tokenService;
@@ -62,7 +66,12 @@ class NameNodeTokenReplaceTest extends NameTestBase {
     // Create a user and a node with populated name fields.
     $account = $this->createUser();
     $account->set('field_realname', [
-      'title' => 'UUtt', 'given' => 'UUgg', 'middle' => 'UUmm UUnn', 'family' => 'UUff', 'generational' => 'Jr.', 'credentials' => 'UUCreds, UUMoreCreds'
+      'title' => 'UUtt',
+      'given' => 'UUgg',
+      'middle' => 'UUmm UUnn',
+      'family' => 'UUff',
+      'generational' => 'Jr.',
+      'credentials' => 'UUCreds, UUMoreCreds',
     ])->save();
 
     /* @var $node \Drupal\node\NodeInterface */
@@ -71,8 +80,19 @@ class NameNodeTokenReplaceTest extends NameTestBase {
       'tnid' => 0,
       'uid' => $account->id(),
       'title' => '<blink>Blinking Text</blink>',
-      'body' => [['value' => 'Regular NODE body for the test.', 'summary' => 'Fancy NODE summary.', 'format' => 'plain_text']],
-      'field_name' =>[['title' => 'Ttt', 'given' => 'Ggg', 'middle' => 'Mmm Nnnn', 'family' => 'Fff', 'generational' => 'Sr.', 'credentials' => 'Creds, MoreCreds']],
+      'body' => [[
+        'value' => 'Regular NODE body for the test.',
+        'summary' => 'Fancy NODE summary.',
+        'format' => 'plain_text',
+      ]],
+      'field_name' =>[[
+        'title' => 'Ttt',
+        'given' => 'Ggg',
+        'middle' => 'Mmm Nnnn',
+        'family' => 'Fff',
+        'generational' => 'Sr.',
+        'credentials' => 'Creds, MoreCreds',
+      ]],
     ]);
     $node->save();
 

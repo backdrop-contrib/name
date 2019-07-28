@@ -20,7 +20,7 @@ class NameOptionsProviderTest extends NameTestBase {
     'taxonomy',
     'entity_test',
     'text',
-    'user'
+    'user',
   ];
 
   /**

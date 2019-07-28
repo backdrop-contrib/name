@@ -10,6 +10,9 @@ use Drupal\name\Entity\NameListFormat;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Component\Render\FormattableMarkup;
 
+/**
+ * The name list builder.
+ */
 class NameListFormatListBuilder extends ConfigEntityListBuilder {
 
   /**
@@ -131,7 +134,7 @@ class NameListFormatListBuilder extends ConfigEntityListBuilder {
   /**
    * Provides some example based on names with various components set.
    *
-   * @param \Drupal\name\Entity\NameListFormat $entity;
+   * @param \Drupal\name\Entity\NameListFormat $entity
    *   The name format entity.
    *
    * @return \Drupal\Component\Render\FormattableMarkup

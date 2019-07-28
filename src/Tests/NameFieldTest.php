@@ -130,12 +130,6 @@ class NameFieldTest extends NameTestBase {
     $this->drupalPostForm('admin/structure/types/manage/page/fields/node.page.field_name_test', $field_settings, t('Save settings'));
 
     $required_messages = [
-      /*
-      t('@components can not be selected for @label when they are not selected for @label2.',
-              ['@label' => t('Minimum components'), '@label2' => t('Components'),
-              '@components' => Html::escape(implode(', ', [$n['title'], $n['generational'], $n['credentials']]))]),
-      */
-
       t('@field must be higher than or equal to 1.', ['@field' => $n['title']]),
       t('@field must be higher than or equal to 1.', ['@field' => $n['given']]),
       t('@field must be a number.', ['@field' => $n['middle']]),
@@ -254,11 +248,6 @@ class NameFieldTest extends NameTestBase {
     $this->drupalPostForm('admin/structure/types/manage/page/fields/node.page.field_name_test', $field_settings, t('Save settings'));
 
     $required_messages = [
-      /*
-      t('@components can not be selected for @label when they are not selected for @label2.',
-              ['@label' => t('Minimum components'), '@label2' => t('Components'),
-              '@components' => Html::escape(implode(', ', [$n['title'], $n['generational'], $n['credentials']]))]),
-      */
       t('Maximum length for @field must be higher than or equal to 1.', ['@field' => $n['title']]),
       t('Maximum length for @field must be higher than or equal to 1.', ['@field' => $n['given']]),
       t('Maximum length for @field must be a number.', ['@field' => $n['middle']]),

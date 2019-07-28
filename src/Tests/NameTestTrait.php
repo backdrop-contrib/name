@@ -21,12 +21,12 @@ trait NameTestTrait {
    *   The bundle.
    * @param array $storage_extras
    *   Additional field storage settings.
-   *   - cardinality (int): -1
-   *   - settings (array):
+   *   - cardinality (int)
+   *   - settings (array)
    * @param array $field_extras
    *   Additional field settings.
    *   - widget: ['type' => 'options_buttons']
-   *   - settings (array):
+   *   - settings (array)
    *
    * @return \Drupal\Core\Field\FieldDefinitionInterface
    *   The field definition.

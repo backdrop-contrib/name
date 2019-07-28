@@ -85,9 +85,9 @@ trait NameFormSettingsHelperTrait {
           '#prefix' => '<tr><td>&nbsp;</td>',
           '#suffix' => '</tr>',
           'elements' => [
-              '#prefix' => '<td colspan="' . (6 - count($excluded_components)) . '">',
-              '#suffix' => '</td>',
-            ] + $form[$child],
+            '#prefix' => '<td colspan="' . (6 - count($excluded_components)) . '">',
+            '#suffix' => '</td>',
+          ] + $form[$child],
         ];
         unset($form[$child]);
       }
@@ -120,12 +120,12 @@ trait NameFormSettingsHelperTrait {
                 }
               }
               $form['name_settings']['table']['tbody'][$child][$key] = [
-                  '#prefix' => '<td>',
-                  '#suffix' => '</td>',
-                  '#weight' => $weight,
-                ] + $form[$child][$key];
-              // Elements with components are dependant on the component checkbox
-              // being selected.
+                '#prefix' => '<td>',
+                '#suffix' => '</td>',
+                '#weight' => $weight,
+              ] + $form[$child][$key];
+              // Elements with components are dependant on the component
+              // checkbox being selected.
               if ($child != 'components') {
                 $form['name_settings']['table']['tbody'][$child][$key]['#states'] = [
                   'visible' => [

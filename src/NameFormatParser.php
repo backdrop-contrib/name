@@ -334,7 +334,8 @@ class NameFormatParser {
    *
    * @param string $string
    *   Accepts strings in the format, ^ marks the matched bracket.
-   *   '(xxx^)xxx(xxxx)xxxx' or '(xxx(xxx(xxxx))xxx^)'
+   *
+   *   i.e. '(xxx^)xxx(xxxx)xxxx' or '(xxx(xxx(xxxx))xxx^)'.
    *
    * @return mixed
    *   The closing bracket position or FALSE if not found.
@@ -431,8 +432,8 @@ class NameFormatParser {
    * Finds and renders the first renderable name component value.
    *
    * This function does not by default sanitize the output unless the markup
-   * flag is set. If this is set, it runs the component through check_plain() and
-   * wraps the component in a span with the component name set as the class.
+   * flag is set. If this is set, it runs the component through check_plain()
+   * and wraps the component in a span with the component name set as the class.
    *
    * @param array $values
    *   An array of walues to find the first to render.
@@ -625,7 +626,7 @@ class NameFormatParser {
   public function renderableTokenHelp() {
     return [
       '#type' => 'details',
-      '#title' => t('Format string help'),
+      '#title' => $this->t('Format string help'),
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
       '#parents' => [],

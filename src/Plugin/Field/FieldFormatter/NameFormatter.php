@@ -248,7 +248,7 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
     if (!empty($settings['link_target'])) {
       $targets = $this->getLinkableTargets();
       $summary[] = $this->t('Link: @target', [
-        '@target' => empty($targets[$settings['link_target']]) ? t('-- invalid --') : $targets[$settings['link_target']],
+        '@target' => empty($targets[$settings['link_target']]) ? $this->t('-- invalid --') : $targets[$settings['link_target']],
       ]);
     }
 
@@ -348,7 +348,7 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
   /**
    * Gets the URL object.
    *
-   * @param FieldItemListInterface $items
+   * @param \Drupal\Core\Field\FieldItemListInterface $items
    *   The name formatters FieldItemList.
    *
    * @return \Drupal\Core\Url
@@ -395,7 +395,7 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
   /**
    * Gets any additional linked components.
    *
-   * @param FieldItemListInterface $items
+   * @param \Drupal\Core\Field\FieldItemListInterface $items
    *   The name formatters FieldItemList.
    *
    * @return array

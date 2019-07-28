@@ -45,7 +45,8 @@ class NameFormatter implements NameFormatterInterface {
   protected $listFormatStorage;
 
   /**
-   * Language manager for retrieving the default langcode when none is specified.
+   * Language manager for retrieving the default language code when none is
+   * specified.
    *
    * @var \Drupal\Core\Language\LanguageManagerInterface
    */
@@ -190,19 +191,20 @@ class NameFormatter implements NameFormatterInterface {
         '@delimiter' => trim($settings['delimiter']),
       ];
       if ($settings['and'] == 'text') {
-        $t_args['@and'] = t('and', [], ['context' => 'name']);
+        $t_args['@and'] = $this->t('and', [], ['context' => 'name']);
       }
       else {
-        $t_args['@and'] = t('&', [], ['context' => 'name']);
+        $t_args['@and'] = $this->t('&', [], ['context' => 'name']);
       }
 
-      // Strange rule from http://citationstyles.org/downloads/specification.html.
+      // Strange rule from citationstyles.org.
+      // @see http://citationstyles.org/downloads/specification.html
       if (($settings['delimiter_precedes_last'] == 'contextual' && $name_count > 2)
           || $settings['delimiter_precedes_last'] == 'always') {
-        return t('@names@delimiter @and @lastname', $t_args);
+        return $this->t('@names@delimiter @and @lastname', $t_args);
       }
       else {
-        return t('@names @and @lastname', $t_args);
+        return $this->t('@names @and @lastname', $t_args);
       }
     }
   }
