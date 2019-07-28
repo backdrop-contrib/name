@@ -13,7 +13,7 @@ use Drupal\name\NameUnicodeExtras;
 class NameUnicodeExtrasTest extends UnitTestCase {
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   public static function getInfo() {
     return [

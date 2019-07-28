@@ -45,8 +45,7 @@ class NameFormatter implements NameFormatterInterface {
   protected $listFormatStorage;
 
   /**
-   * Language manager for retrieving the default language code when none is
-   * specified.
+   * Language manager for retrieving the default language code if needed.
    *
    * @var \Drupal\Core\Language\LanguageManagerInterface
    */

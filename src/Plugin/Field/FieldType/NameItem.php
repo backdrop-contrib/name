@@ -51,7 +51,7 @@ class NameItem extends FieldItemBase {
   ];
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   public static function schema(FieldStorageDefinitionInterface $field_definition) {
     $columns = [];
@@ -83,7 +83,7 @@ class NameItem extends FieldItemBase {
   }
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   public static function propertyDefinitions(FieldStorageDefinitionInterface $field_definition) {
     $properties = [];
@@ -109,7 +109,7 @@ class NameItem extends FieldItemBase {
   }
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   public static function mainPropertyName() {
     // There is no main property for this field item.
@@ -117,7 +117,7 @@ class NameItem extends FieldItemBase {
   }
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   public function isEmpty() {
     foreach ($this->properties as $property) {
@@ -178,7 +178,7 @@ class NameItem extends FieldItemBase {
   }
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   public function fieldSettingsForm(array $form, FormStateInterface $form_state) {
     $settings = $this->getSettings();

@@ -169,8 +169,8 @@ class NameWidgetTest extends NameTestBase {
     $field_settings = [
       'settings[show_component_required_marker]' => FALSE,
       'settings[component_layout]' => 'default',
-//      'settings[credentials_inline]' => TRUE,
-//      'settings[component_layout]' => 'default',
+      // 'settings[credentials_inline]' => TRUE,
+      // 'settings[component_layout]' => 'default',
     ] + $field_settings;
     $this->drupalPostForm('admin/structure/types/manage/page/fields/node.page.field_name_test', $field_settings, t('Save settings'));
     $this->drupalGet('node/add/page');

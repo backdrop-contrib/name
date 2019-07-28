@@ -21,7 +21,7 @@ class NameFormatParserTest extends UnitTestCase {
   protected $parser;
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   protected function setUp() {
     parent::setUp();
@@ -42,7 +42,7 @@ class NameFormatParserTest extends UnitTestCase {
   }
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   public static function getInfo() {
     return [

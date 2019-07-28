@@ -69,8 +69,6 @@ class NameFieldBuilder extends FieldDiffBuilderBase {
    * {@inheritdoc}
    */
   public function build(FieldItemListInterface $items) {
-    $definition = $items->getFieldDefinition();
-
     $result = [];
     if ($this->configuration['compare_format']) {
       foreach ($items as $item) {
