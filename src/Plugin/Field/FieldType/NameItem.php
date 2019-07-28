@@ -111,6 +111,14 @@ class NameItem extends FieldItemBase {
   /**
    * {@inheritDoc}
    */
+  public static function mainPropertyName() {
+    // There is no main property for this field item.
+    return NULL;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public function isEmpty() {
     foreach ($this->properties as $property) {
       $definition = $property->getDataDefinition();
