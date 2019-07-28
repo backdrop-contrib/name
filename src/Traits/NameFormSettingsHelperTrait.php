@@ -98,7 +98,7 @@ trait NameFormSettingsHelperTrait {
           $help_footer_notes[] = $form[$child]['#description'];
           unset($form[$child]['#description']);
         }
-        if (empty($excluded_components[$key]) && isset($form[$child]['#title'])) {
+        if (isset($form[$child]['#title'])) {
           $form['name_settings']['table']['tbody'][$child] = [
             '#prefix' => '<tr><th>' . $form[$child]['#title'] . $footnote_sup . '</th>',
             '#suffix' => '</tr>',
