@@ -14,10 +14,10 @@ function name_post_update_create_name_list_format() {
     if (!$default_list->locked) {
       $default_list->locked = TRUE;
       $default_list->save();
-      drupal_set_message(t('Default name list format was set to locked.'));
+      $message = t('Default name list format was set to locked.');
     }
     else {
-      drupal_set_message(t('Nothing required to action.'));
+      $message = t('Nothing required to action.');
     }
   }
   else {
@@ -33,8 +33,10 @@ function name_post_update_create_name_list_format() {
       'el_al_first' => 1,
     ]);
     $default_list->save();
-    drupal_set_message(t('Default name list format was added.'));
+    $message = t('Default name list format was added.');
   }
+
+  return $message;
 }
 
 /**
@@ -79,7 +81,7 @@ function name_post_update_formatter_settings() {
     }
   }
 
-  drupal_set_message(t('New name list formatter settings are implemented. Please review any name display settings that used inline lists.'));
+  return t('New name list formatter settings are implemented. Please review any name display settings that used inline lists.');
 }
 
 /**
