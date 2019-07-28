@@ -403,15 +403,15 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
    */
   protected function parseAdditionalComponents(FieldItemListInterface $items) {
     $extra = [];
-    foreach (['preferred', 'alternative'] as $component => $key) {
+    foreach (['preferred', 'alternative'] as $key) {
       $key_value = $this->getSetting($key . '_field_reference');
       $sep_value = $this->getSetting($key . '_field_reference_separator');
       if (!$key_value) {
-        $key_value = $this->fieldDefinition->getSetting($key);
-        $sep_value = $this->fieldDefinition->getSetting($key . '_separator');
+        $key_value = $this->fieldDefinition->getSetting($key . '_field_reference');
+        $sep_value = $this->fieldDefinition->getSetting($key . '_field_reference_separator');
       }
       if ($value = name_get_additional_component($this->entityTypeManager, $this->renderer, $items, $key_value, $sep_value)) {
-        $extra[$component] = $value;
+        $extra[$key] = $value;
       }
     }
 
