@@ -181,6 +181,9 @@ class NameFormatter implements NameFormatterInterface {
       }
     }
     else {
+      if ($settings['and'] == 'inherit') {
+        return new NameListFormattableMarkup($names, $settings['delimiter']);
+      }
       $t_args = [
         '@lastname' => array_pop($names),
         '@names' => new NameListFormattableMarkup($names, $settings['delimiter']),
@@ -249,12 +252,14 @@ class NameFormatter implements NameFormatterInterface {
       return [
         'text' => $this->t('Textual (and)'),
         'symbol' => $this->t('Ampersand (&amp;)'),
+        'inherit' => $this->t('Inherit delimiter'),
       ];
     }
     else {
       return [
         'text' => $this->t('Textual'),
         'symbol' => $this->t('Ampersand'),
+        'inherit' => $this->t('Inherit delimiter'),
       ];
     }
   }

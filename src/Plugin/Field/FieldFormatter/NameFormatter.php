@@ -208,6 +208,7 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
     $settings = $this->getSettings();
     $summary = [];
 
+    // Name format.
     $machine_name = isset($settings['format']) ? $settings['format'] : 'default';
     $name_format = $this->entityTypeManager->getStorage('name_format')->load($machine_name);
     if ($name_format) {
@@ -220,6 +221,25 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
       $summary[] = $this->t('Format: <strong>Missing format.</strong><br/>This field will be displayed using the Default format.');
     }
 
+    // List format.
+    if (!isset($settings['list_format']) || $settings['list_format'] == '') {
+      $summary[] = $this->t('List format: Individually');
+    }
+    else {
+      $machine_name = isset($settings['list_format']) ? $settings['list_format'] : 'default';
+      $name_format = $this->entityTypeManager->getStorage('name_list_format')->load($machine_name);
+      if ($name_format) {
+        $summary[] = $this->t('List format: @format (@machine_name)', [
+          '@format' => $name_format->label(),
+          '@machine_name' => $name_format->id(),
+        ]);
+      }
+      else {
+        $summary[] = $this->t('List format: <strong>Missing list format.</strong><br/>This field will be displayed using the Default list format.');
+      }
+    }
+
+    // Additional options.
     $markup_options = $this->parser->getMarkupOptions();
     $summary[] = $this->t('Markup: @type', [
       '@type' => $markup_options[$this->getSetting('markup')],
