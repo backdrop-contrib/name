@@ -530,8 +530,8 @@ function _name_field_instance_settings_pre_render($form) {
     ),
     'tfoot' => array(
       '#markup' => '<tfoot><tr><td colspan="7"><ol>'
-        . '<li>' . t('The title display controls how the label of the name component is displayed in the form. "%above" is the standard title; "%below" is the standard description; "%hidden" removes the label.',
-                      array('%above' => t('above'), '%below' => t('below'), '%hidden' => t('hidden'))) . '</li>'
+        . '<li>' . t('The title display controls how the label of the name component is displayed in the form:<br>"%above" is the standard title;<br>"%below" is the standard description;<br>%placeholder" uses the placeholder attribute, select lists do not support this option;<br>"%hidden" removes the label.',
+                      array('%above' => t('above'), '%below' => t('below'), '%placeholder' => t('placeholder'), '%hidden' => t('hidden'))) . '</li>'
         . '<li>' . t('The Field type controls how the field is rendered. Autocomplete is a text field with autocomplete, and the behaviour of this is controlled by the field settings.') . '</li>'
         . '<li>' . t('The HTML size property tells the browser what the width of the field should be when it is rendered. This gets overriden by the themes CSS properties. This must be between 1 and 255.') . '</li>'
         . '<li>' . t('Additional inline styles for the input element. For example, "width: 45px; background-color: #f3f3f3"') . '</li>'

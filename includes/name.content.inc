@@ -327,6 +327,7 @@ function _name_field_instance_settings_form($field, $instance = NULL) {
       '#options' => array(
         'title' => t('above'),
         'description' => t('below'),
+        'placeholder' => t('placeholder'),
         'none' => t('hidden'),
       ),
       '#description' => t('This controls how the label of the component is displayed in the form.'),

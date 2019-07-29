@@ -733,14 +733,23 @@ function _name_render_component($components, $component_key, $base_element, $cor
   switch ($title_display) {
     case 'title':
       break;
+
+    case 'placeholder':
+      $element['#attributes']['placeholder'] = t($element['#title']);
+      $element['#title_display'] = 'invisible';
+      break;
+      break;
+
     case 'none':
       $element['#title_display'] = 'invisible';
       break;
+
     case 'description':
     default:
       $element['#title_display'] = 'invisible';
       $element['#description'] = t($element['#title']);
       break;
+
   }
 
   return $element;
