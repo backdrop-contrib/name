@@ -82,6 +82,7 @@ function name_tokens($type, $tokens, array $data = array(), array $options = arr
   $replacements = array();
 
   // This handles the field tokens.
+  dpm_once(name_token_types_chained($type));
   if (isset($data[$type]) && $known_tokens = name_token_types_chained($type)) {
     foreach ($tokens as $name => $original) {
       // The RealName module provides the 'name-raw' token.
@@ -103,6 +104,11 @@ function name_tokens($type, $tokens, array $data = array(), array $options = arr
         // This will mimimise the chances of false matches like 'name-raw'.
         if (field_info_field($field_name)) {
           $entity_type = str_replace('-', '_', $type);
+          // Fix for only known token type to entity type mismatched keys.
+          if (in_array($entity_type, array('term', 'vocabulary'))) {
+            $entity_type = 'taxonomy_' . $entity_type;
+          }
+
           $items = field_get_items($entity_type, $data[$type], $field_name);
           if (empty($items)) {
             $replacements[$original] = '';
