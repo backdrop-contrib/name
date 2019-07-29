@@ -1852,10 +1852,12 @@ function name_field_item_property_info() {
  * Implements hook_migrate_api().
  */
 function name_migrate_api() {
-  $api = array(
+  return array(
     'api' => 2,
+    'field handlers' => array(
+      'MigrateNameHandler',
+    ),
   );
-  return $api;
 }
 
 /**
