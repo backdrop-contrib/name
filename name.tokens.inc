@@ -257,7 +257,7 @@ function name_token_types_chained($type = NULL, $reset = FALSE) {
 
     if (!$types) {
       $types = array();
-      foreach (field_info_fields() as $field_name => $info) {
+      foreach (field_info_field_map() as $field_name => $info) {
         if ($info['type'] == 'name') {
           foreach ($info['bundles'] as $entity_type => $bundles) {
             // Name field. Also known as Client.
