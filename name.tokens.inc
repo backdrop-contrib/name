@@ -82,7 +82,6 @@ function name_tokens($type, $tokens, array $data = array(), array $options = arr
   $replacements = array();
 
   // This handles the field tokens.
-  dpm_once(name_token_types_chained($type));
   if (isset($data[$type]) && $known_tokens = name_token_types_chained($type)) {
     foreach ($tokens as $name => $original) {
       // The RealName module provides the 'name-raw' token.
