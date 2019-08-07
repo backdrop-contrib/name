@@ -452,7 +452,7 @@ function _name_field_widget_form(&$form, &$form_state, $field, $instance, $langc
     'minimum_components' => array(),
   );
   // Use populated overrides if present.
-  $fs['components'] = name_get_instance_components($fs['components'], $ws['minimum_components']);
+  $fs['components'] = name_get_instance_components($fs['components'], $ws['components']);
   $fs['minimum_components'] = name_get_instance_components($fs['minimum_components'], $ws['minimum_components']);
 
   $element += array(

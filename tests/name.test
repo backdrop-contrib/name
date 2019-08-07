@@ -720,6 +720,155 @@ class Name_FieldTestCase extends NameTestHelper {
 
   }
 
+  /**
+   * Tests that enabled components are shown on the field widget.
+   */
+  public function testNameWidget() {
+    // Create a field for the user entity type. Enable all components.
+    // For minimum components, only enable 'family'.
+    field_create_field(array(
+      'field_name' => 'name_test',
+      'type' => 'name',
+      'settings' => array(
+        'allow_family_or_given' => 0,
+        'autocomplete_separator' => array(
+          'credentials' => ', ',
+          'family' => ' -',
+          'generational' => ' ',
+          'given' => ' -',
+          'middle' => ' -',
+          'title' => ' ',
+        ),
+        'autocomplete_source' => array(
+          'credentials' => array(),
+          'family' => array(),
+          'generational' => array(
+            'generational' => 0,
+          ),
+          'given' => array(),
+          'middle' => array(),
+          'title' => array(
+            'title' => 0,
+          ),
+        ),
+        'components' => array(
+          'credentials' => 'credentials',
+          'family' => 'family',
+          'generational' => 'generational',
+          'given' => 'given',
+          'middle' => 'middle',
+          'title' => 'title',
+        ),
+        'max_length' => array(
+          'credentials' => 255,
+          'family' => 63,
+          'generational' => 15,
+          'given' => 63,
+          'middle' => 20,
+          'title' => 31,
+        ),
+        'minimum_components' => array(
+          'credentials' => 0,
+          'family' => 'family',
+          'generational' => 0,
+          'given' => 0,
+          'middle' => 0,
+          'title' => 0,
+        ),
+        'sort_options' => array(
+          'generational' => 'generational',
+          'title' => 'title',
+        ),
+      ),
+    ));
+    // Create a field instance. Don't override component settings.
+    field_create_instance(array(
+      'field_name' => 'name_test',
+      'entity_type' => 'user',
+      'bundle' => 'user',
+      'settings' => array(
+        'component_css' => '',
+        'component_layout' => 'default',
+        'components' => array(
+          'credentials' => 0,
+          'family' => 0,
+          'generational' => 0,
+          'given' => 0,
+          'middle' => 0,
+          'title' => 0,
+        ),
+        'credentials_inline' => 0,
+        'generational_field' => 'select',
+        'field_type' => array(
+          'credentials' => 'text',
+          'family' => 'text',
+          'generational' => 'select',
+          'given' => 'text',
+          'middle' => 'text',
+          'title' => 'select',
+        ),
+        'minimum_components' => array(
+          'credentials' => 0,
+          'family' => 'family',
+          'generational' => 0,
+          'given' => 0,
+          'middle' => 0,
+          'title' => 0,
+        ),
+        'name_user_preferred' => 0,
+        'override_format' => 'default',
+        'preferred_field_reference' => '',
+        'show_component_required_marker' => 1,
+        'size' => array(
+          'credentials' => 35,
+          'family' => 20,
+          'generational' => 5,
+          'given' => 20,
+          'middle' => 20,
+          'title' => 6,
+        ),
+        'title_display' => array(
+          'credentials' => 'title',
+          'family' => 'title',
+          'generational' => 'title',
+          'given' => 'title',
+          'middle' => 'title',
+          'title' => 'title',
+        ),
+        'title_field' => 'select',
+        'user_register_form' => 1,
+      ),
+      'widget' => array(
+        'type' => 'name_widget',
+      ),
+      'display' => array(
+        'default' => array(
+          'type' => 'name_formatter',
+        ),
+      ),
+    ));
+
+    // Login as webuser.
+    $web_user = $this->drupalCreateUser(array('access content'));
+    $this->drupalLogin($web_user);
+
+    // Go to own edit account page.
+    $this->drupalGet('user/' . $web_user->uid . '/edit');
+
+    // Assert expected fields.
+    $expected_fields = array(
+      'name_test[und][0][credentials]',
+      'name_test[und][0][family]',
+      'name_test[und][0][generational]',
+      'name_test[und][0][given]',
+      'name_test[und][0][middle]',
+      'name_test[und][0][title]',
+    );
+    foreach ($expected_fields as $name) {
+      $this->assertFieldByName($name);
+    }
+  }
+
   function name_getFieldSettings() {
     $field_settings = array(
       'field[settings][components][title]' => TRUE,
