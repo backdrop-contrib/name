@@ -152,7 +152,7 @@ class NameItem extends FieldItemBase {
     $settings = $field->getSettings();
     $active_components = array_filter($settings['components']);
     foreach ($this->getProperties() as $name => $property) {
-      if ($active_components[$name]) {
+      if (isset($active_components[$name]) && $active_components[$name]) {
         $values[$name] = $property->getValue();
       }
     }
