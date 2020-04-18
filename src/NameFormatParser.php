@@ -124,8 +124,8 @@ class NameFormatParser {
     $modifiers = '';
     $conditions = '';
     for ($i = 0; $i < strlen($format); $i++) {
-      $char = $format{$i};
-      $last_char = ($i > 0) ? $format{$i - 1} : FALSE;
+      $char = $format[$i];
+      $last_char = ($i > 0) ? $format[$i - 1] : FALSE;
 
       // Handle escaped letters.
       if ($char == '\\') {
@@ -286,7 +286,7 @@ class NameFormatParser {
         }
 
         for ($j = 0; $j < strlen($modifiers); $j++) {
-          switch ($modifiers{$j}) {
+          switch ($modifiers[$j]) {
             case 'L':
               $string = Unicode::strtolower($string);
               break;
@@ -345,7 +345,7 @@ class NameFormatParser {
     $depth = 0;
     $string = str_replace(['\(', '\)'], ['__', '__'], $string);
     for ($i = 0; $i < strlen($string); $i++) {
-      $char = $string{$i};
+      $char = $string[$i];
       if ($char == '(') {
         $depth++;
       }
