@@ -117,8 +117,8 @@ class NameAutocomplete {
           $sep = ' ';
         }
         for ($i = 0; $i < strlen($sep); $i++) {
-          if (strpos($action['separater'], $sep{$i}) === FALSE) {
-            $action['separater'] .= $sep{$i};
+          if (strpos($action['separater'], $sep[$i]) === FALSE) {
+            $action['separater'] .= $sep[$i];
           }
         }
         $found_source = FALSE;
