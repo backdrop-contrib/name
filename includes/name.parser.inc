@@ -153,9 +153,9 @@ function _name_format($name_components, $format = '', $settings = array(), $toke
   $conditions = '';
   $depth = 0;
   for ($i = 0; $i < strlen($format); $i++) {
-    $char = $format{$i};
-    $last_char = ($i > 0) ? $format{$i -1} : FALSE;
-    $next_char = ($i < $len - 2) ? $format{$i + 1} : FALSE;
+    $char = $format[$i];
+    $last_char = ($i > 0) ? $format[$i - 1] : FALSE;
+    $next_char = ($i < $len - 2) ? $format[$i + 1] : FALSE;
 
     // Handle escaped letters.
     if ($char == '\\') {
@@ -287,7 +287,7 @@ function _name_format_apply_modifiers($string, $modifiers) {
       }
 
       for ($j = 0; $j < strlen($modifiers); $j++) {
-        switch ($modifiers{$j}) {
+        switch ($modifiers[$j]) {
           case 'L':
             $string = drupal_strtolower($string);
             break;
@@ -332,7 +332,7 @@ function _name_format_closing_bracket_position($string) {
   $depth = 0;
   $string = str_replace(array('\(', '\)'), array('__', '__'), $string);
   for ($i = 0; $i < strlen($string); $i++) {
-    $char = $string{$i};
+    $char = $string[$i];
     if ($char == '(') {
       $depth++;
     }
