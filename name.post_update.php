@@ -35,7 +35,7 @@ function name_post_update_create_name_list_format() {
       'el_al_min' => 3,
       'el_al_first' => 1,
     ]);
-    $default_list->save();
+    $name_list_format_storage->save();
     $message = t('Default name list format was added.');
   }
 
