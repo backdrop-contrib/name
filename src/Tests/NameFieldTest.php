@@ -1,11 +1,12 @@
 <?php
 
-namespace Drupal\name\Tests;
+namespace Drupal\Tests\name\Functional;
 
 use Drupal\Component\Utility\Html;
+use Drupal\node\Entity\NodeType;
 
 /**
- * Tests for the admin settings and custom format page.
+ * Various tests on creating a name field on a node.
  *
  * @group name
  */
@@ -27,22 +28,14 @@ class NameFieldTest extends NameTestBase {
   /**
    * {@inheritdoc}
    */
-  public static function getInfo() {
-    return [
-      'name' => 'Node Name Field',
-      'description' => 'Various tests on creating a name field on a node.' ,
-      'group' => 'Name',
-    ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function setUp() {
     parent::setUp();
 
     // Create content-type: page.
-    $page = entity_create('node_type', ['type' => 'page', 'name' => 'Basic page']);
+    $page = NodeType::create([
+      'type' => 'page',
+      'name' => 'Basic page',
+    ]);
     $page->save();
   }
 
@@ -50,7 +43,7 @@ class NameFieldTest extends NameTestBase {
    * The most basic test.
    */
   public function testFieldEntry() {
-    $this->drupalLogin($this->admin_user);
+    $this->drupalLogin($this->adminUser);
 
     $new_name_field = [
       'label' => 'Test name',

@@ -9,6 +9,7 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemBase;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\TypedData\DataDefinition;
 use Drupal\name\Traits\NameFieldSettingsTrait;
 use Drupal\name\Traits\NameFormDisplaySettingsTrait;
@@ -29,7 +30,7 @@ use Drupal\name\Traits\NameAdditionalPreferredTrait;
  *   default_formatter = "name_default"
  * )
  */
-class NameItem extends FieldItemBase {
+class NameItem extends FieldItemBase implements TrustedCallbackInterface {
 
   use NameFieldSettingsTrait;
   use NameFormDisplaySettingsTrait;
@@ -49,6 +50,13 @@ class NameItem extends FieldItemBase {
     'generational',
     'credentials',
   ];
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function trustedCallbacks() {
+    return ['fieldSettingsFormPreRender'];
+  }
 
   /**
    * {@inheritdoc}

@@ -4,7 +4,6 @@ namespace Drupal\name\Traits;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
-use Drupal\Component\Utility\Unicode;
 use Drupal\name\NameOptionsProvider;
 
 /**
@@ -220,7 +219,7 @@ trait NameFormSettingsHelperTrait {
           }
         }
       }
-      elseif (Unicode::strlen($value) > $max_length) {
+      elseif (mb_strlen($value) > $max_length) {
         $long_options[] = $value;
       }
       elseif (!empty($value)) {

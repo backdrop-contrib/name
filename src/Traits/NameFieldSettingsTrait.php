@@ -310,7 +310,7 @@ trait NameFieldSettingsTrait {
       '#items' => $items,
     ];
     $layout_description = $this->t('<p>This controls the order of the widgets that are displayed in the form.</p>')
-      . drupal_render($item_list)
+      . \Drupal::service('renderer')->render($item_list)
       . $this->t('<p>Note that when you select the Asian and German name formats, the Generational field is hidden and defaults to an empty string.</p>');
     $element['component_layout'] = [
       '#type' => 'radios',

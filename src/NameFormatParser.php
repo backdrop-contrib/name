@@ -68,7 +68,7 @@ class NameFormatParser {
    * @return \Drupal\Component\Render\MarkupInterface
    *   A renderable object representing the name.
    */
-  public function parse($name_components, $format = '', array $settings = []) {
+  public function parse(array $name_components, $format = '', array $settings = []) {
     foreach (['sep1', 'sep2', 'sep3'] as $sep_key) {
       if (isset($settings[$sep_key])) {
         $this->{$sep_key} = (string) $settings[$sep_key];
@@ -108,7 +108,7 @@ class NameFormatParser {
    * @return string
    *   The formatted string.
    */
-  protected function format($name_components, $format = '', $tokens = NULL) {
+  protected function format(array $name_components, $format = '', array $tokens = NULL) {
     if (empty($format)) {
       return '';
     }
@@ -288,11 +288,11 @@ class NameFormatParser {
         for ($j = 0; $j < strlen($modifiers); $j++) {
           switch ($modifiers[$j]) {
             case 'L':
-              $string = Unicode::strtolower($string);
+              $string = mb_strtolower($string);
               break;
 
             case 'U':
-              $string = Unicode::strtoupper($string);
+              $string = mb_strtoupper($string);
               break;
 
             case 'F':
@@ -368,7 +368,7 @@ class NameFormatParser {
    * @return array
    *   The keyed tokens generated for the given name.
    */
-  protected function generateTokens($name_components) {
+  protected function generateTokens(array $name_components) {
     $name_components = (array) $name_components;
     $name_components += [
       'title' => '',
@@ -474,13 +474,13 @@ class NameFormatParser {
    *   The rendered componenet.
    */
   protected function renderComponent($value, $component_key, $modifier = NULL) {
-    if (empty($value) || !Unicode::strlen($value)) {
+    if (empty($value) || !mb_strlen($value)) {
       return NULL;
     }
     switch ($modifier) {
       // First letter first word.
       case 'initial':
-        $value = Unicode::substr($value, 0, 1);
+        $value = mb_substr($value, 0, 1);
         break;
 
       // First letter all words.
@@ -602,13 +602,13 @@ class NameFormatParser {
         if (preg_match('/^[a-z]+$/', $letter)) {
           $tokens[$letter] = $this->t('@description<br><small>(lowercase @letter)</small>', [
             '@description' => $description,
-            '@letter' => Unicode::strtoupper($letter),
+            '@letter' => mb_strtoupper($letter),
           ]);
         }
         elseif (preg_match('/^[A-Z]+$/', $letter)) {
           $tokens[$letter] = $this->t('@description<br><small>(uppercase @letter)</small>', [
             '@description' => $description,
-            '@letter' => Unicode::strtoupper($letter),
+            '@letter' => mb_strtoupper($letter),
           ]);
         }
       }

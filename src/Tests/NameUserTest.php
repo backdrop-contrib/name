@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\name\Tests;
+namespace Drupal\Tests\name\Kernel;
 
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
@@ -14,6 +14,9 @@ use Drupal\user\Entity\User;
  */
 class NameUserTest extends KernelTestBase {
 
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = [
     'field',
     'name',
@@ -85,7 +88,7 @@ class NameUserTest extends KernelTestBase {
     ]);
     $field2->save();
 
-    $this->assertEqual($field->getName(), \Drupal::config('name.settings')->get('user_preferred'));
+    $this->assertEquals($field->getName(), \Drupal::config('name.settings')->get('user_preferred'));
 
     \Drupal::configFactory()
       ->getEditable('name.settings')
@@ -93,7 +96,7 @@ class NameUserTest extends KernelTestBase {
       ->save();
 
     $field2->delete();
-    $this->assertEqual('', \Drupal::config('name.settings')->get('user_preferred'));
+    $this->assertEquals('', \Drupal::config('name.settings')->get('user_preferred'));
 
     \Drupal::configFactory()
       ->getEditable('name.settings')
@@ -110,10 +113,10 @@ class NameUserTest extends KernelTestBase {
     $account->save();
 
     $account = User::load($account->id());
-    $this->assertEqual('Max Mustermann', $account->realname);
-    $this->assertEqual('Max Mustermann', user_format_name($account));
-    $this->assertEqual('test', $account->getUsername());
-    $this->assertEqual('Max Mustermann', $account->getDisplayName());
+    $this->assertEquals('Max Mustermann', $account->realname);
+    $this->assertEquals('Max Mustermann', $account->label());
+    $this->assertEquals('test', $account->getAccountName());
+    $this->assertEquals('Max Mustermann', $account->getDisplayName());
   }
 
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace Drupal\name\Tests;
+namespace Drupal\Tests\name\Unit;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;
-use Drupal\Tests\UnitTestCase;
 use Drupal\name\NameFormatParser;
+use Drupal\Tests\UnitTestCase;
 
 /**
  * Tests the name formatter.
@@ -42,17 +42,6 @@ class NameFormatParserTest extends UnitTestCase {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public static function getInfo() {
-    return [
-      'name' => 'NameFormatterParser Test',
-      'description' => 'Test NameFormatParser',
-      'group' => 'Name',
-    ];
-  }
-
-  /**
    * Convert names() to PHPUnit compatible format.
    *
    * @return array
@@ -80,16 +69,14 @@ class NameFormatParserTest extends UnitTestCase {
    * @dataProvider patternDataProvider
    */
   public function testParser($components, $pattern, $expected) {
-    if ($this->parser) {
-      $settings = [
-        'sep1' => ' ',
-        'sep2' => ', ',
-        'sep3' => '',
-      ];
+    $settings = [
+      'sep1' => ' ',
+      'sep2' => ', ',
+      'sep3' => '',
+    ];
 
-      $formatted = $this->parser->parse($components, $pattern, $settings);
-      $this->assertEquals($expected, $formatted);
-    }
+    $formatted = $this->parser->parse($components, $pattern, $settings);
+    $this->assertEquals($expected, $formatted);
   }
 
   /**
@@ -103,7 +90,7 @@ class NameFormatParserTest extends UnitTestCase {
       'given' => [
         'components' => ['given' => 'John'],
         'tests' => [
-          // Test that only the given name creates a entry.
+          // Test that only the given name creates an entry.
           // Title.
           't' => '',
           // Given name.

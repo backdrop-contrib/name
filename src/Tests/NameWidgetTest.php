@@ -1,12 +1,13 @@
 <?php
 
-namespace Drupal\name\Tests;
+namespace Drupal\Tests\name\Functional;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Render\FormattableMarkup;
+use Drupal\node\Entity\NodeType;
 
 /**
- * Tests for the admin settings and custom format page.
+ * Various tests on creating a name widget on a node.
  *
  * @group name
  */
@@ -28,22 +29,14 @@ class NameWidgetTest extends NameTestBase {
   /**
    * {@inheritdoc}
    */
-  public static function getInfo() {
-    return [
-      'name' => 'Name Widget',
-      'description' => 'Various tests on creating a name widget on a node.' ,
-      'group' => 'Name',
-    ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function setUp() {
     parent::setUp();
 
     // Create content-type: page.
-    $page = entity_create('node_type', ['type' => 'page', 'name' => 'Basic page']);
+    $page = NodeType::create([
+      'type' => 'page',
+      'name' => 'Basic page',
+    ]);
     $page->save();
   }
 
@@ -51,7 +44,7 @@ class NameWidgetTest extends NameTestBase {
    * The most basic test.
    */
   public function testFieldEntry() {
-    $this->drupalLogin($this->admin_user);
+    $this->drupalLogin($this->adminUser);
 
     $new_name_field = [
       'label' => 'Test name',
@@ -141,29 +134,29 @@ class NameWidgetTest extends NameTestBase {
 
     // Checks the existence and positioning of the components.
     foreach (_name_component_keys() as $component) {
-      $this->assetComponentSettings($component, $field_settings);
+      $this->assertComponentSettings($component, $field_settings);
     }
 
-    $this->assetFieldSettings($field_settings);
+    $this->assertFieldSettings($field_settings);
 
     // Test the language layouts.
     $this->verbose('Testing asian');
     $field_settings['settings[component_layout]'] = 'asian';
     $this->drupalPostForm('admin/structure/types/manage/page/fields/node.page.field_name_test', $field_settings, t('Save settings'));
     $this->drupalGet('node/add/page');
-    $this->assetFieldSettings($field_settings);
+    $this->assertFieldSettings($field_settings);
 
     $this->verbose('Testing eastern');
     $field_settings['settings[component_layout]'] = 'eastern';
     $this->drupalPostForm('admin/structure/types/manage/page/fields/node.page.field_name_test', $field_settings, t('Save settings'));
     $this->drupalGet('node/add/page');
-    $this->assetFieldSettings($field_settings);
+    $this->assertFieldSettings($field_settings);
 
     $this->verbose('Testing german');
     $field_settings['settings[component_layout]'] = 'german';
     $this->drupalPostForm('admin/structure/types/manage/page/fields/node.page.field_name_test', $field_settings, t('Save settings'));
     $this->drupalGet('node/add/page');
-    $this->assetFieldSettings($field_settings);
+    $this->assertFieldSettings($field_settings);
 
     $this->verbose('Testing show_component_required_marker unchecked.');
     $field_settings = [
@@ -175,25 +168,28 @@ class NameWidgetTest extends NameTestBase {
     $this->drupalPostForm('admin/structure/types/manage/page/fields/node.page.field_name_test', $field_settings, t('Save settings'));
     $this->drupalGet('node/add/page');
     foreach (_name_component_keys() as $component) {
-      $this->assetComponentSettings($component, $field_settings);
+      $this->assertComponentSettings($component, $field_settings);
     }
 
   }
 
-  protected function assetFieldSettings($settings) {
-    $xpath = '//div[@id="edit-field-name-test-wrapper"]/div/div/div';
+  /**
+   * Asserts that the field settings appear in the correct order.
+   *
+   * @param array $settings
+   *   The field settings, as form post array.
+   */
+  protected function assertFieldSettings(array $settings) {
+    $xpath = '//div[@id="edit-field-name-test-wrapper"]/div/div';
     $elements = $this->xpath($xpath);
-    if (!$elements) {
-      $this->assertTrue(FALSE, "No compnents found.");
-      return;
-    }
+    $this->assertNotEmpty($elements, 'No components found.');
 
     $content = '';
     foreach ($elements as $element) {
-      $content .= str_replace(["\n", "\r"], " ", $element->asXML());
+      $content .= str_replace(["\n", "\r"], " ", $element->getHtml());
     }
 
-    $this->verbose(HTML::escape($content));
+    $this->verbose(Html::escape($content));
     $this->verbose($settings["settings[component_layout]"]);
     switch ($settings["settings[component_layout]"]) {
       case 'asian':
@@ -220,105 +216,119 @@ class NameWidgetTest extends NameTestBase {
         break;
     }
 
-    $this->assertTrue(preg_match($regexp, $content), t('Generational field wrapper classes appear to be in the correct order.'));
+    $this->assertTrue((bool) preg_match($regexp, $content), 'Generational field wrapper classes appear to be in the correct order.');
 
     // @todo: Tests for settings[credentials_inline] setting.
   }
 
-  protected function assetComponentSettings($key, $settings) {
+  /**
+   * Asserts that the components exists and appear in the right order.
+   *
+   * @param string $key
+   *   The name component key, for example 'given'.
+   * @param array $settings
+   *   The field settings, as form post array.
+   */
+  protected function assertComponentSettings($key, array $settings) {
     $xpath = '//div[contains(@class,:value)]';
     $elements = $this->xpath($this->buildXPathQuery($xpath, [':value' => "name-{$key}-wrapper"]));
-    if (!$elements) {
-      $this->assertTrue(FALSE, "Component $key field found.");
-      return;
-    }
+    $this->assertNotEmpty($elements, "Component $key field found.");
     $object = reset($elements);
 
     $type = $settings["settings[field_type][{$key}]"] == 'select' ? 'select' : 'input';
     $show_required = $settings['settings[show_component_required_marker]'];
     $is_required = $settings["settings[minimum_components][{$key}]"];
-    $content = str_replace(["\n", "\r"], " ", $object->asXML());
+    $content = str_replace(["\n", "\r"], " ", $object->getHtml());
 
     switch ($settings["settings[title_display][$key]"]) {
       case 'title':
-        $result = preg_match('/<label .*<' . $type . ' /i', $content);
+        $result = (bool) preg_match('/<label .*<' . $type . ' /i', $content);
         $this->assertTrue($result, "Testing label is before field of type $type for $key component.");
         if ($result) {
           $required_marker_preg = '@<label .*?class=".*?js-form-required.*form-required.*?".*>@';
           if ($show_required && $is_required) {
-            $this->assertTrue(preg_match($required_marker_preg, $content), "Required class is added for $key component in label");
+            $this->assertTrue((bool) preg_match($required_marker_preg, $content), "Required class is added for $key component in label");
           }
           else {
-            $this->assertFalse(preg_match($required_marker_preg, $content), "Required class is not added for $key component in label");
+            $this->assertFalse((bool) preg_match($required_marker_preg, $content), "Required class is not added for $key component in label");
           }
         }
         break;
 
       case 'description':
-        $result = preg_match('/<' . $type . ' .*<label /i', $content);
+        $result = (bool) preg_match('/<' . $type . ' .*<label /i', $content);
         $this->assertTrue($result, "Testing label is after field of type $type for $key component.");
         if ($result) {
           $required_marker_preg = '@<label .*?class=".*?js-form-required.*form-required.*?">@';
           if ($show_required && $is_required) {
-            $this->assertTrue(preg_match($required_marker_preg, $content), "Required class is added for $key component in label");
+            $this->assertTrue((bool) preg_match($required_marker_preg, $content), "Required class is added for $key component in label");
           }
           else {
-            $this->assertFalse(preg_match($required_marker_preg, $content), "Required class is not added for $key component in label");
+            $this->assertFalse((bool) preg_match($required_marker_preg, $content), "Required class is not added for $key component in label");
           }
         }
         break;
 
       case 'placeholder':
-        $result = preg_match('@<' . $type . ' [^>]*?placeholder=".*?' . $settings["settings[labels][$key]"] . '.*?"@', $content);
+        $result = (bool) preg_match('@<' . $type . ' [^>]*?placeholder=".*?' . $settings["settings[labels][$key]"] . '.*?"@', $content);
         $this->assertTrue($result, "Testing label is a placeholder on the field of type $type for $key component.");
         if ($result) {
-          $required_marker_preg = '@<' . $type . ' [^>]*?placeholder=".*?' . t('Required') . '.*?"@';
+          $required_marker_preg = '@<' . $type . ' [^>]*?placeholder=".*?Required.*?"@';
           if ($show_required && $is_required) {
-            $this->assertTrue(preg_match($required_marker_preg, $content), "Required text is added for $key component in placeholder attribute");
+            $this->assertTrue((bool) preg_match($required_marker_preg, $content), "Required text is added for $key component in placeholder attribute");
           }
           else {
-            $this->assertFalse(preg_match($required_marker_preg, $content), "Required text is added for $key component in placeholder attribute");
+            $this->assertFalse((bool) preg_match($required_marker_preg, $content), "Required text is added for $key component in placeholder attribute");
           }
         }
         break;
 
       case 'attribute':
-        $result = preg_match('@<' . $type . ' [^>]*?title=".*?' . $settings["settings[labels][$key]"] . '.*?"@', $content);
+        $result = (bool) preg_match('@<' . $type . ' [^>]*?title=".*?' . $settings["settings[labels][$key]"] . '.*?"@', $content);
         $this->assertTrue($result, "Testing label is a title attribute on the field of type $type for $key component.");
         if ($result) {
-          $required_marker_preg = '@<' . $type . ' [^>]*?title=".*?' . t('Required') . '.*?"@';
+          $required_marker_preg = '@<' . $type . ' [^>]*?title=".*?Required.*?"@';
           if ($show_required && $is_required) {
-            $this->assertTrue(preg_match($required_marker_preg, $content), "Required text is added for $key component in $type title attribute");
+            $this->assertTrue((bool) preg_match($required_marker_preg, $content), "Required text is added for $key component in $type title attribute");
           }
           else {
-            $this->assertFalse(preg_match($required_marker_preg, $content), "Required text is added for $key component in $type title attribute");
+            $this->assertFalse((bool) preg_match($required_marker_preg, $content), "Required text is added for $key component in $type title attribute");
           }
         }
         break;
 
       case 'none':
-        $result = preg_match('@<label [^>]*?class=".*?visually-hidden.*?"@', $content);
+        $result = (bool) preg_match('@<label [^>]*?class=".*?visually-hidden.*?"@', $content);
         $this->assertTrue($result, "Testing label is present but hidden on the field of type $type for $key component.");
         break;
 
     }
 
     if (isset($settings["settings[max_length][{$key}]"]) && $type != 'select') {
-      $result = preg_match('@<' . $type . ' [^>]*?maxlength="' . $settings["settings[max_length][{$key}]"] . '"@', $content);
+      $result = (bool) preg_match('@<' . $type . ' [^>]*?maxlength="' . $settings["settings[max_length][{$key}]"] . '"@', $content);
       $this->assertTrue($result, "Testing max_length is set on field of type $type for $key component.");
     }
     if (isset($settings["settings[size][{$key}]"]) && $type != 'select') {
-      $result = preg_match('@<' . $type . ' [^>]*?size="' . $settings["settings[size][{$key}]"] . '"@', $content);
+      $result = (bool) preg_match('@<' . $type . ' [^>]*?size="' . $settings["settings[size][{$key}]"] . '"@', $content);
       $this->assertTrue($result, "Testing size is set on field of type $type for $key component.");
     }
   }
 
-  protected function assetRegularExpression($expression, $content, $message) {
-    $found = preg_match($expression, $content);
-    $this->assertTrue($found, $message);
-  }
-
-  protected function assertFieldByTypeAndName($type, $name, $value = NULL, $message = NULL, $group = 'Browser') {
+  /**
+   * Asserts that the given field exists.
+   *
+   * @param string $type
+   *   The form field type, for example 'input' or 'select'.
+   * @param string $name
+   *   The form field full name.
+   * @param mixed $value
+   *   The expected value that the form field has.
+   * @param string $message
+   *   The failure message.
+   *
+   * @todo Replace calls to this method using Mink's NodeElement::getValue().
+   */
+  protected function assertFieldByTypeAndName($type, $name, $value = NULL, $message = NULL) {
     if (!isset($message)) {
       if (!isset($value)) {
         $message = new FormattableMarkup('Found @type field with name @name', [
@@ -334,7 +344,7 @@ class NameWidgetTest extends NameTestBase {
         ]);
       }
     }
-    return $this->assertFieldByXPath($this->constructFieldXpathByTypeAndAttribute($type, 'name', $name), $value, $message, $group);
+    return $this->assertFieldByXPath($this->constructFieldXpathByTypeAndAttribute($type, 'name', $name), $value, $message);
   }
 
   /**

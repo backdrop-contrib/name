@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\name\Tests;
+namespace Drupal\Tests\name\Traits;
 
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;

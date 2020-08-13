@@ -1,10 +1,12 @@
 <?php
 
-namespace Drupal\name\Tests;
+namespace Drupal\Tests\name\Functional;
 
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
+use Drupal\Tests\name\Traits\NameTestTrait;
 
 /**
  * Tests text replacements in content to check node name token replacement.
@@ -80,19 +82,23 @@ class NameNodeTokenReplaceTest extends NameTestBase {
       'tnid' => 0,
       'uid' => $account->id(),
       'title' => '<blink>Blinking Text</blink>',
-      'body' => [[
-        'value' => 'Regular NODE body for the test.',
-        'summary' => 'Fancy NODE summary.',
-        'format' => 'plain_text',
-      ]],
-      'field_name' =>[[
-        'title' => 'Ttt',
-        'given' => 'Ggg',
-        'middle' => 'Mmm Nnnn',
-        'family' => 'Fff',
-        'generational' => 'Sr.',
-        'credentials' => 'Creds, MoreCreds',
-      ]],
+      'body' => [
+        [
+          'value' => 'Regular NODE body for the test.',
+          'summary' => 'Fancy NODE summary.',
+          'format' => 'plain_text',
+        ],
+      ],
+      'field_name' => [
+        [
+          'title' => 'Ttt',
+          'given' => 'Ggg',
+          'middle' => 'Mmm Nnnn',
+          'family' => 'Fff',
+          'generational' => 'Sr.',
+          'credentials' => 'Creds, MoreCreds',
+        ],
+      ],
     ]);
     $node->save();
 
@@ -116,8 +122,8 @@ class NameNodeTokenReplaceTest extends NameTestBase {
     $item = $account->get('field_realname')->get(0);
     $components = $item->filteredArray();
 
-    $tests['[node:author:name]'] = $account->getUsername();
-    $tests['[node:author:account-name]'] = $account->getUsername();
+    $tests['[node:author:name]'] = $account->getAccountName();
+    $tests['[node:author:account-name]'] = $account->getAccountName();
     $tests['[node:author:display-name]'] = $account->getDisplayName();
     $tests['[node:author:field_realname]'] = $this->formatter->format($components);
     $tests['[node:author:field_realname:family]'] = $components['family'];
@@ -130,14 +136,14 @@ class NameNodeTokenReplaceTest extends NameTestBase {
     foreach ($tests as $input => $expected) {
       $bubbleable_metadata = new BubbleableMetadata();
       $output = $this->tokenService->replace($input, ['node' => $node], ['langcode' => $this->interfaceLanguage->getId()], $bubbleable_metadata);
-      $this->assertEqual($output, (string) $expected, format_string('Node token %token replaced with %expected, got %actual.', [
+      $this->assertEquals($output, (string) $expected, new FormattableMarkup('Node token %token replaced with %expected, got %actual.', [
         '%token' => $input,
         '%expected' => $expected,
         '%actual' => $output,
       ]));
       // @todo: caching tests.
       // @see NodeTokenReplaceTest.
-      // $this->assertEqual($bubbleable_metadata, $metadata_tests[$input]);
+      // $this->assertEquals($bubbleable_metadata, $metadata_tests[$input]);
     }
   }
 

@@ -16,13 +16,13 @@ use Drupal\user\UserInterface;
 use Drupal\user\Entity\User;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\Component\Utility\Html;
-use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\name\Element\Name;
 
 /**
  * Helper function to get any defined name widget layout options.
@@ -120,14 +120,14 @@ function name_user_format_name_alter(&$name, AccountInterface $account) {
 
   // Since $account may not be the real User entity object, check the name
   // lookup cache for results too.
-  if (!isset($account->realname) || !Unicode::strlen($account->realname)) {
+  if (!isset($account->realname) || !mb_strlen($account->realname)) {
     $names = &drupal_static('name_user_realname_cache', []);
     if (isset($names[$account->id()])) {
       $account->realname = $names[$account->id()];
     }
   }
 
-  if (isset($account->realname) && Unicode::strlen($account->realname)) {
+  if (isset($account->realname) && mb_strlen($account->realname)) {
     $name = $account->realname;
   }
 }
@@ -225,7 +225,8 @@ function name_get_additional_component(EntityTypeManagerInterface $entityTypeMan
           }
         }
       }
-      catch (\InvalidArgumentException $e) {}
+      catch (\InvalidArgumentException $e) {
+      }
     }
     elseif ($parent->hasField($key_value)) {
       $target_items = $parent->get($key_value);
@@ -255,7 +256,8 @@ function name_get_additional_component(EntityTypeManagerInterface $entityTypeMan
                   }
                 }
               }
-              catch (\Exception $e) {}
+              catch (\Exception $e) {
+              }
             }
             break;
 
@@ -532,7 +534,7 @@ function name_element_render_component(array $components, $component_key, array 
  * @return array
  *   The form element.
  */
-function name_component_description_after_build_label_alter($element, FormStateInterface $form_state) {
+function name_component_description_after_build_label_alter(array $element, FormStateInterface $form_state) {
   if (!empty($element['#description']) && !empty($element['#id']) && is_array($element['#description'])) {
     $element['#description']['#for'] = $element['#id'];
   }
@@ -599,38 +601,12 @@ function name_element_validate($element, &$form_state) {
 
 /**
  * This function themes the element and controls the title display.
+ *
+ * @deprecated in name:8.x-1.0 and is removed from name:2.0.0.
+ *   Use Drupal\name\Element\Name::preRender() instead.
  */
 function name_element_pre_render($element) {
-  $layouts = name_widget_layouts();
-  $layout = $layouts['stacked'];
-  if (!empty($element['#widget_layout']) && isset($layouts[$element['#widget_layout']])) {
-    $layout = $layouts[$element['#widget_layout']];
-  }
-
-  if (!empty($layout['library'])) {
-    if (!isset($element['#attached']['library'])) {
-      $element['#attached']['library'] = [];
-    }
-    $element['#attached']['library'] += $layout['library'];
-  }
-  $attributes = new Attribute($layout['wrapper_attributes']);
-  $element['_name'] = [
-    '#prefix' => '<div' . $attributes . '>',
-    '#suffix' => '</div>',
-  ];
-
-  foreach (_name_translations() as $key => $title) {
-    if (isset($element[$key])) {
-      $element['_name'][$key] = $element[$key];
-      unset($element[$key]);
-    }
-  }
-
-  if (!empty($element['#component_layout'])) {
-    _name_component_layout($element['_name'], $element['#component_layout']);
-  }
-
-  return $element;
+  return Name::preRender($element);
 }
 
 /**

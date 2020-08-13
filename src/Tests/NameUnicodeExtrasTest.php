@@ -1,9 +1,9 @@
 <?php
 
-namespace Drupal\name\Tests;
+namespace Drupal\Tests\name\Unit;
 
-use Drupal\Tests\UnitTestCase;
 use Drupal\name\NameUnicodeExtras;
+use Drupal\Tests\UnitTestCase;
 
 /**
  * Tests the unicode additional functions.

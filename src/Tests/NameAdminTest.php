@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\name\Tests;
+namespace Drupal\Tests\name\Functional;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Url;
@@ -19,7 +19,7 @@ class NameAdminTest extends NameTestBase {
    */
   public function testAdminFormatSettings() {
     // Default settings and system settings.
-    $this->drupalLogin($this->admin_user);
+    $this->drupalLogin($this->adminUser);
 
     // The default installed formats.
     $this->drupalGet('admin/config/regional/name');
@@ -183,7 +183,7 @@ class NameAdminTest extends NameTestBase {
     $this->drupalGet('admin/config/regional/name/manage/test/delete');
     $this->assertText(t('Are you sure you want to delete the custom format @title?', ['@title' => $values['label']]));
 
-    $this->drupalPostForm(NULL, ['confirm' => 1], t('Delete'));
+    $this->drupalPostForm(NULL, [], t('Delete'));
     $this->assertText(t('The name format @title has been deleted.', ['@title' => $values['label']]));
   }
 
@@ -192,7 +192,7 @@ class NameAdminTest extends NameTestBase {
    */
   public function testAdminListFormatSettings() {
     // Default settings and system settings.
-    $this->drupalLogin($this->admin_user);
+    $this->drupalLogin($this->adminUser);
 
     // The default installed formats.
     $this->drupalGet('admin/config/regional/name/list');
@@ -301,12 +301,12 @@ class NameAdminTest extends NameTestBase {
     $this->drupalGet('admin/config/regional/name/list/manage/test/delete');
     $this->assertText(t('Are you sure you want to delete the custom list format @title?', ['@title' => $values['label']]));
 
-    $this->drupalPostForm(NULL, ['confirm' => 1], t('Delete'));
+    $this->drupalPostForm(NULL, [], t('Delete'));
     $this->assertText(t('The name list format @title has been deleted.', ['@title' => $values['label']]));
   }
 
   /**
-   * Helper function to test a table cell via it's expected value.
+   * Helper function to test a table cell via its expected value.
    *
    * @param array $row
    *   Table rows to test.
@@ -319,11 +319,11 @@ class NameAdminTest extends NameTestBase {
     foreach ($row as $cell_code => $value) {
       if (isset($row_template[$cell_code])) {
         $xpath = str_replace('{row}', $id, $row_template[$cell_code]);
-        $raw_xpath = $this->xpath($xpath);
+        $elements = $this->xpath($xpath);
 
         // Check URLs with or without the ?destination= query parameter.
         if (strpos($row_template[$cell_code], '/a/@href')) {
-          $results = $raw_xpath && isset($raw_xpath[0]) ? (string) $raw_xpath[0] : '';
+          $results = isset($elements[0]) ? $elements[0]->getHtml() : '';
           $message = "Testing {$cell_code} on row {$id} using '{$xpath}' and expecting '" . Html::escape($value) . "', got '" . Html::escape($results) . "'.";
           if ($results == $value || strpos($results, $value . '?destination=') === 0) {
             $this->pass($message);
@@ -333,16 +333,16 @@ class NameAdminTest extends NameTestBase {
           }
         }
         else {
-          $results = $this->normaliseOutput($raw_xpath);
+          $results = $this->normalizeOutput($elements);
           $message = "Testing {$cell_code} on row {$id} using '{$xpath}' and expecting '" . Html::escape($value) . "', got '" . Html::escape($results) . "'.";
-          $this->assertEqual($results, $value, $message);
+          $this->assertEquals($results, $value, $message);
         }
       }
     }
   }
 
   /**
-   * Helper function to test a table cell via it's expected value.
+   * Helper function to test a table cell via its expected value.
    *
    * @param array $row
    *   Table rows to test.
@@ -356,7 +356,7 @@ class NameAdminTest extends NameTestBase {
       if (isset($row_template[$cell_code])) {
         $xpath = str_replace('{row}', $id, $row_template[$cell_code]);
         $raw_xpath = $this->xpath($xpath);
-        $results = $this->normaliseOutput($raw_xpath);
+        $results = $this->normalizeOutput($raw_xpath);
         $values = (array) $values;
         foreach ($values as $value) {
           $message = "{$cell_code} [{$id}] '{$xpath}': testing '{$value}'; got '{$results}'.";
@@ -367,35 +367,35 @@ class NameAdminTest extends NameTestBase {
   }
 
   /**
-   * Helper function to normalise output for testing results.
+   * Helper function to normalize output for testing results.
    *
-   * Normalises text by:
+   * Normalizes text by:
    * - gets complete HTML structure of the child nodes.
    * - ensures whitespace around any HTML tags.
    * - removes newlines and ensures single whitespaces.
    * - trims the string for trailing whitespace.
    *
-   * @param array|false $raw_xpath
+   * @param array|false $elements
    *   Raw results from the XML Path lookup.
    *
    * @return string
-   *   A normalised string.
+   *   A normalized string.
    */
-  protected function normaliseOutput($raw_xpath = []) {
-    if (!is_array($raw_xpath)) {
+  protected function normalizeOutput($elements = []) {
+    if (!is_array($elements)) {
       return '__MISSING__';
     }
 
     $results = '';
-    foreach ($raw_xpath as $elm) {
-      $results .= $elm->asXML();
+    foreach ($elements as $element) {
+      $results .= $element->getHtml();
     }
     // Insert a single whitespace in front of all opening HTML tags.
     $results = preg_replace('/<(?!\/)/', ' <', $results);
-    // Normalise any newlines.
+    // Normalize any newlines.
     $results = str_replace(["\r", "\n"], ["\n", " "], $results);
     $results = strip_tags($results);
-    // Normalise any remaining whitespaces into a single space.
+    // Normalize any remaining whitespaces into a single space.
     $results = preg_replace('/\s+/', ' ', $results);
     return trim($results);
   }

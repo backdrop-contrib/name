@@ -1,13 +1,18 @@
 <?php
 
-namespace Drupal\name\Tests;
+namespace Drupal\Tests\name\Functional;
 
-use Drupal\simpletest\WebTestBase;
+use Drupal\Tests\BrowserTestBase;
 
 /**
  * Helper test class with some added functions for testing.
  */
-abstract class NameTestBase extends WebTestBase {
+abstract class NameTestBase extends BrowserTestBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stable';
 
   /**
    * Modules to enable.
@@ -22,34 +27,26 @@ abstract class NameTestBase extends WebTestBase {
   ];
 
   /**
-   * Possible unused leftover from D7?
-   *
-   * @var mixed
-   */
-  protected $instance;
-
-  /**
    * Web user to run the tests for.
    *
    * @var \Drupal\user\Entity\User
    */
-  protected $web_user;
-
+  protected $webUser;
 
   /**
    * Admin user to run the tests for.
    *
    * @var \Drupal\user\Entity\User
    */
-  protected $admin_user;
+  protected $adminUser;
 
   /**
    * {@inheritdoc}
    */
   public function setUp() {
     parent::setUp();
-    $this->web_user = $this->drupalCreateUser([]);
-    $this->admin_user = $this->drupalCreateUser([
+    $this->webUser = $this->drupalCreateUser([]);
+    $this->adminUser = $this->drupalCreateUser([
       'administer site configuration',
       'administer content types',
       'access content',
@@ -60,6 +57,8 @@ abstract class NameTestBase extends WebTestBase {
 
   /**
    * Helper function.
+   *
+   * @todo Replace calls to this method using Mink's NodeElement::isChecked().
    */
   protected function assertNoFieldCheckedByName($name, $message = '') {
     $elements = $this->xpath('//input[@name=:name]', [':name' => $name]);
@@ -70,6 +69,8 @@ abstract class NameTestBase extends WebTestBase {
 
   /**
    * Helper function.
+   *
+   * @todo Replace calls to this method using Mink's NodeElement::isChecked().
    */
   protected function assertFieldCheckedByName($name, $message = '') {
     $elements = $this->xpath('//input[@name=:name]', [':name' => $name]);
@@ -80,6 +81,8 @@ abstract class NameTestBase extends WebTestBase {
 
   /**
    * Helper function.
+   *
+   * @todo describe this method.
    */
   protected function assertNameFormat($name_components, $type, $object, $format, $expected, array $options = []) {
     $this->assertNameFormats($name_components, $type, $object, [$format => $expected], $options);
@@ -87,6 +90,8 @@ abstract class NameTestBase extends WebTestBase {
 
   /**
    * Helper function.
+   *
+   * @todo describe this method.
    */
   protected function assertNameFormats($name_components, $type, $object, array $names, array $options = []) {
     foreach ($names as $format => $expected) {
