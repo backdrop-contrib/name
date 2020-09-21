@@ -24,7 +24,7 @@ function name_post_update_create_name_list_format() {
     }
   }
   else {
-    $name_list_format_storage->create([
+    $name_list_format = $name_list_format_storage->create([
       'id' => 'default',
       'label' => 'Default',
       'locked' => TRUE,
@@ -35,7 +35,7 @@ function name_post_update_create_name_list_format() {
       'el_al_min' => 3,
       'el_al_first' => 1,
     ]);
-    $name_list_format_storage->save();
+    $name_list_format->save();
     $message = t('Default name list format was added.');
   }
 
@@ -88,8 +88,9 @@ function name_post_update_formatter_settings() {
 }
 
 /**
- * Updates the field formatter settings for new link and alternative data
- * sources settings.
+ * Updates the field formatter settings.
+ *
+ * Adds new link and alternative data sources settings.
  */
 function name_post_update_formatter_settings_link_and_external_sources() {
   $new_settings = [
