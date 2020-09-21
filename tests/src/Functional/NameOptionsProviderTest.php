@@ -4,7 +4,6 @@ namespace Drupal\Tests\name\Functional;
 
 use Drupal\taxonomy\Entity\Term;
 use Drupal\taxonomy\Entity\Vocabulary;
-use Drupal\Tests\name\Traits\NameTestTrait;
 
 /**
  * Tests NameOptionsProvider class.
