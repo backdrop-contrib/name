@@ -16,6 +16,7 @@ use Drupal\name\NameFormatParser;
 use Drupal\name\NameGeneratorInterface;
 use Drupal\name\Traits\NameAdditionalPreferredTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\name\NameFormatter as NameFormatterService;
 
 /**
  * Plugin implementation of the 'name' formatter.
@@ -111,7 +112,7 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
    * @param \Drupal\name\NameGeneratorInterface $generator
    *   The name format parser.
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, EntityFieldManager $entityFieldManager, EntityTypeManagerInterface $entityTypeManager, RendererInterface $renderer, \Drupal\name\NameFormatter $formatter, NameFormatParser $parser, NameGeneratorInterface $generator) {
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, EntityFieldManager $entityFieldManager, EntityTypeManagerInterface $entityTypeManager, RendererInterface $renderer, NameFormatterService $formatter, NameFormatParser $parser, NameGeneratorInterface $generator) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
 
     $this->entityFieldManager = $entityFieldManager;
@@ -187,17 +188,17 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
       '#description' => $this->t('This option wraps the individual components of the name in SPAN elements with corresponding classes to the component.'),
       '#required' => TRUE,
     ];
+    if (!empty($this->fieldDefinition->getTargetBundle())) {
+      $elements['link_target'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Link Target'),
+        '#default_value' => $this->getSetting('link_target'),
+        '#empty_option' => $this->t('-- no link --'),
+        '#options' => $this->getLinkableTargets(),
+      ];
 
-    $elements['link_target'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Link Target'),
-      '#default_value' => $this->getSetting('link_target'),
-      '#empty_option' => $this->t('-- no link --'),
-      '#options' => $this->getLinkableTargets(),
-    ];
-
-    $elements += $this->getNameAdditionalPreferredSettingsForm($form, $form_state);
-
+      $elements += $this->getNameAdditionalPreferredSettingsForm($form, $form_state);
+    }
     return $elements;
   }
 
@@ -387,7 +388,8 @@ class NameFormatter extends FormatterBase implements ContainerFactoryPluginInter
         }
       }
     }
-    catch (UndefinedLinkTemplateException $e) {}
+    catch (UndefinedLinkTemplateException $e) {
+    }
 
     return Url::fromRoute('<none>');
   }
