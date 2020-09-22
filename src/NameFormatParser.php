@@ -87,6 +87,10 @@ class NameFormatParser {
       case 'microdata':
         return new FormattableMarkup($name_string, []);
 
+      // Unescaped text.
+      case 'raw':
+        return $name_string;
+
       // Raw component values.
       case 'none':
       default:
@@ -532,6 +536,8 @@ class NameFormatParser {
     return [
       // Raw component values.
       'none' => $this->t('No markup'),
+      // Unescaped text.
+      'raw' => $this->t('Raw, unescaped text'),
       // Escaped component values.
       'simple' => $this->t('Component classes'),
       // Escaped component values.

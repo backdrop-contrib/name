@@ -80,6 +80,23 @@ class NameFormatParserTest extends UnitTestCase {
   }
 
   /**
+   * Tests parsing a name with special characters.
+   */
+  public function testParseUsingRawFormat() {
+    $components = [
+      'given' => 'Bobo',
+      'middle' => "'t",
+      'family' => "K'nijn",
+    ];
+    $pattern = '((((t+ig)+im)+if)+is)+jc';
+    $settings = [
+      'markup' => 'raw',
+    ];
+    $formatted = $this->parser->parse($components, $pattern, $settings);
+    $this->assertEquals("Bobo 't K'nijn", (string) $formatted);
+  }
+
+  /**
    * Helper function to provide data for testParser.
    *
    * @return array
