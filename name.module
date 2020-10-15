@@ -86,7 +86,6 @@ function name_theme() {
     'name_item_list' => [
       'variables' => ['items' => [], 'settings' => []],
       'file' => 'name.theme.inc',
-      'function' => 'theme_name_item_list',
     ],
     // Themes the FAPI element.
     'name' => [
