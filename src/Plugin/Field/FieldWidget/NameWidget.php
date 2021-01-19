@@ -76,7 +76,6 @@ class NameWidget extends WidgetBase implements ContainerFactoryPluginInterface {
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
-    module_load_include('inc', 'name', 'includes/name.content');
     $widget_settings = $this->getSettings();
     $field_settings = $this->getFieldSettings();
     if (!empty($widget_settings['override_field_settings'])
