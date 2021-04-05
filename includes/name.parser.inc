@@ -20,10 +20,11 @@ function theme_name_format_parameter_help() {
 
   return $output;
 }
+
 /**
  * Provides the tokens that the name parse can handle.
  *
- * Todo:: make the labels generic
+ * @todo make the labels generic.
  */
 function name_replacement_tokens() {
   $tokens = array(
@@ -67,6 +68,9 @@ function name_replacement_tokens() {
   return $tokens;
 }
 
+/**
+ *
+ */
 function _name_generate_tokens($name_components, $settings = array()) {
   $name_components = (array) $name_components;
   $markup = !empty($settings['markup']);
@@ -132,7 +136,7 @@ function _name_generate_tokens($name_components, $settings = array()) {
 }
 
 /**
- * TODO: Look at replacing the raw string functions with the Drupal equivalent
+ * @todo Look at replacing the raw string functions with the Drupal equivalent
  * functions. Will need to test this carefully...
  */
 function _name_format($name_components, $format = '', $settings = array(), $tokens = NULL) {
@@ -263,6 +267,9 @@ function _name_format($name_components, $format = '', $settings = array(), $toke
   return str_replace('\\\\', "\t", implode('', $parsed_pieces));
 }
 
+/**
+ *
+ */
 function _name_format_add_component($string, &$modifiers = '', &$conditions = '') {
   $string = _name_format_apply_modifiers($string, $modifiers);
   $piece = array(
@@ -274,6 +281,9 @@ function _name_format_add_component($string, &$modifiers = '', &$conditions = ''
   return $piece;
 }
 
+/**
+ *
+ */
 function _name_format_apply_modifiers($string, $modifiers) {
   if (!is_null($string) || strlen($string)) {
     if ($modifiers) {
@@ -291,12 +301,15 @@ function _name_format_apply_modifiers($string, $modifiers) {
           case 'L':
             $string = drupal_strtolower($string);
             break;
+
           case 'U':
             $string = drupal_strtoupper($string);
             break;
+
           case 'F':
             $string = drupal_ucfirst($string);
             break;
+
           case 'G':
             if (!empty($string)) {
               $parts = explode(' ', $string);
@@ -307,9 +320,11 @@ function _name_format_apply_modifiers($string, $modifiers) {
               $string = implode(' ', $string);
             }
             break;
+
           case 'T':
             $string = trim($string);
             break;
+
           case 'S':
             $string = check_plain($string);
             break;
