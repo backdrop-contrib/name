@@ -285,7 +285,7 @@ function _name_format_add_component($string, &$modifiers = '', &$conditions = ''
  *
  */
 function _name_format_apply_modifiers($string, $modifiers) {
-  if (!is_null($string) || strlen($string)) {
+  if (strlen((string) $string)) {
     if ($modifiers) {
       $original_string = $string;
       $prefix = '';
