@@ -52,6 +52,7 @@ abstract class NameTestBase extends BrowserTestBase {
       'access content',
       'access administration pages',
       'administer node fields',
+      'bypass node access'
     ]);
   }
 

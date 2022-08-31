@@ -143,28 +143,28 @@ class NameWidgetTest extends NameTestBase {
     $this->assertFieldSettings($field_settings);
 
     // Test the language layouts.
-    $this->verbose('Testing asian');
+    dump('Testing asian');
     $field_settings['settings[component_layout]'] = 'asian';
     $this->drupalGet('admin/structure/types/manage/page/fields/node.page.field_name_test');
     $this->submitForm($field_settings, t('Save settings'));
     $this->drupalGet('node/add/page');
     $this->assertFieldSettings($field_settings);
 
-    $this->verbose('Testing eastern');
+    dump('Testing eastern');
     $field_settings['settings[component_layout]'] = 'eastern';
     $this->drupalGet('admin/structure/types/manage/page/fields/node.page.field_name_test');
     $this->submitForm($field_settings, t('Save settings'));
     $this->drupalGet('node/add/page');
     $this->assertFieldSettings($field_settings);
 
-    $this->verbose('Testing german');
+    dump('Testing german');
     $field_settings['settings[component_layout]'] = 'german';
     $this->drupalGet('admin/structure/types/manage/page/fields/node.page.field_name_test');
     $this->submitForm($field_settings, t('Save settings'));
     $this->drupalGet('node/add/page');
     $this->assertFieldSettings($field_settings);
 
-    $this->verbose('Testing show_component_required_marker unchecked.');
+    dump('Testing show_component_required_marker unchecked.');
     $field_settings = [
       'settings[show_component_required_marker]' => FALSE,
       'settings[component_layout]' => 'default',
@@ -196,8 +196,8 @@ class NameWidgetTest extends NameTestBase {
       $content .= str_replace(["\n", "\r"], " ", $element->getHtml());
     }
 
-    $this->verbose(Html::escape($content));
-    $this->verbose($settings["settings[component_layout]"]);
+    dump(Html::escape($content));
+    dump($settings["settings[component_layout]"]);
     switch ($settings["settings[component_layout]"]) {
       case 'asian':
         $regexp = '/name-family-wrapper.*name-middle-wrapper.*name-given-wrapper.*name-title-wrapper.*name-credentials-wrapper.*/';

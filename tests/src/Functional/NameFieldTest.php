@@ -310,7 +310,7 @@ class NameFieldTest extends NameTestBase {
     ];
     $this->submitForm($edit, t('Save field settings'));
     $this->drupalGet('node/add/page');
-    $this->assertSession()->pageTextContainsOnce('This is a description.', 'Field description is shown once when field cardinality is 1.');
+    $this->assertSession()->pageTextContainsOnce('This is a description.');
 
     $this->drupalGet('admin/structure/types/manage/page/fields/node.page.field_name_test/storage');
     $edit = [
@@ -319,7 +319,7 @@ class NameFieldTest extends NameTestBase {
     ];
     $this->submitForm($edit, t('Save field settings'));
     $this->drupalGet('node/add/page');
-    $this->assertSession()->pageTextContainsOnce('This is a description.', 'Field description is shown once when field cardinality is 3.');
+    $this->assertSession()->pageTextContainsOnce('This is a description.');
 
     $this->drupalGet('admin/structure/types/manage/page/fields/node.page.field_name_test/storage');
     $edit = [
@@ -327,7 +327,7 @@ class NameFieldTest extends NameTestBase {
     ];
     $this->submitForm($edit, t('Save field settings'));
     $this->drupalGet('node/add/page');
-    $this->assertSession()->pageTextContainsOnce('This is a description.', 'Field description is shown once when field cardinality is unlimited.');
+    $this->assertSession()->pageTextContainsOnce('This is a description.');
   }
 
   /**

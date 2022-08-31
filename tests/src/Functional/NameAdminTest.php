@@ -100,7 +100,7 @@ class NameAdminTest extends NameTestBase {
       'name_settings[sep3]' => '',
     ];
     foreach ($default_values as $name => $value) {
-      $this->assertSession()->fieldExists($name, $value);
+      $this->assertSession()->fieldValueEquals($name, $value);
     }
     // ID example.
     $this->assertSession()->fieldValueEquals('edit-name-settings-sep1', ' ');
@@ -115,7 +115,7 @@ class NameAdminTest extends NameTestBase {
     $this->assertSession()->pageTextContains(t('The configuration options have been saved.'));
 
     foreach ($test_values as $name => $value) {
-      $this->assertSession()->fieldExists($name, $value);
+      $this->assertSession()->fieldValueEquals($name, $value);
     }
 
     // Delete all existing formats.
@@ -335,7 +335,7 @@ class NameAdminTest extends NameTestBase {
 
         // Check URLs with or without the ?destination= query parameter.
         if (strpos($row_template[$cell_code], '/a/@href')) {
-          $results = isset($elements[0]) ? $elements[0]->getHtml() : '';
+          $results = isset($elements[0]) ? $elements[0]->getParent()->getAttribute('href') : '';
           $message = "Testing {$cell_code} on row {$id} using '{$xpath}' and expecting '" . Html::escape($value) . "', got '" . Html::escape($results) . "'.";
           if ($results == $value || strpos($results, $value . '?destination=') === 0) {
           } else {
