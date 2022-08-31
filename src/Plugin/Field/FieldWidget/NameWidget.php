@@ -12,6 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\name\NameOptionsProvider;
 use Drupal\name\Traits\NameFormDisplaySettingsTrait;
 use Drupal\name\Traits\NameFormSettingsHelperTrait;
+use Drupal\Core\Security\TrustedCallbackInterface;
 
 /**
  * Plugin implementation of the 'name' widget.
@@ -25,7 +26,7 @@ use Drupal\name\Traits\NameFormSettingsHelperTrait;
  *   }
  * )
  */
-class NameWidget extends WidgetBase implements ContainerFactoryPluginInterface {
+class NameWidget extends WidgetBase implements ContainerFactoryPluginInterface, TrustedCallbackInterface {
 
   use NameFormDisplaySettingsTrait;
   use NameFormSettingsHelperTrait;
