@@ -482,7 +482,7 @@ function name_element_render_component(array $components, $component_key, array 
         '#required' => $show_component_required_marker,
         '#title_display' => 'before',
       ];
-      $element['#title'] = render($label);
+      $element['#title'] = \Drupal::service('renderer')->render($label);
       break;
 
     case 'placeholder':
