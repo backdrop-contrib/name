@@ -11,6 +11,20 @@
 class NameTestHelper extends DrupalWebTestCase {
 
   /**
+   * A user object for a regular user.
+   *
+   * @var object
+   */
+  protected $web_user;
+
+  /**
+   * A user object for an admin user.
+   *
+   * @var object
+   */
+  protected $admin_user;
+
+  /**
    *
    */
   public function setUp() {
