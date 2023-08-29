@@ -8,7 +8,7 @@
 /**
  * Helper test class with some added functions for testing.
  */
-class NameTestHelper extends DrupalWebTestCase {
+class NameTestHelper extends BackdropWebTestCase {
 
   /**
    * A user object for a regular user.
@@ -34,11 +34,11 @@ class NameTestHelper extends DrupalWebTestCase {
 
     parent::setUp($modules);
 
-    // Base set up is done, we can call drupalCreateUser.
-    $this->web_user = $this->drupalCreateUser();
-    $this->admin_user = $this->drupalCreateUser(array('administer site configuration', 'administer content types', 'access content', 'access administration pages', 'administer fields'));
+    // Base set up is done, we can call backdropCreateUser.
+    $this->web_user = $this->backdropCreateUser();
+    $this->admin_user = $this->backdropCreateUser(array('administer site configuration', 'administer content types', 'access content', 'access administration pages', 'administer fields'));
 
-    variable_set('clean_url', 0);
+    config_set('system.performance', 'clean_url', 0);
   }
 
   /**
@@ -326,26 +326,26 @@ class Name_AdminTestCase extends NameTestHelper {
 
   /**
    * The most basic test. This should only fail if there is a change to the
-   * Drupal API.
+   * Backdrop API.
    */
   public function testAdminSettings() {
     global $base_path;
 
     // Default settings and system settings.
-    $this->drupalLogin($this->admin_user);
+    $this->backdropLogin($this->admin_user);
 
     // The default installed formats.
-    $this->drupalGet('admin/config/content/name');
+    $this->backdropGet('admin/config/content/name');
 
     $row_template = array(
-      'title href'  => '//tr[@id="name-id"]/td[1]/a/@href',
-      'title'       => '//tr[@id="name-id"]/td[1]/a',
-      'machine'     => '//tr[@id="name-id"]/td[2]',
-      'code'        => '//tr[@id="name-id"]/td[3]',
-      'formatted'   => '//tr[@id="name-id"]/td[4]',
-      'edit'        => '//tr[@id="name-id"]/td[5]/a',
-      'edit link'   => '//tr[@id="name-id"]/td[5]/a/@href',
-      'delete'      => '//tr[@id="name-id"]/td[5]/a',
+      'title href' => '//tr[@id="name-id"]/td[1]/a/@href',
+      'title' => '//tr[@id="name-id"]/td[1]/a',
+      'machine' => '//tr[@id="name-id"]/td[2]',
+      'code' => '//tr[@id="name-id"]/td[3]',
+      'formatted' => '//tr[@id="name-id"]/td[4]',
+      'edit' => '//tr[@id="name-id"]/td[5]/a',
+      'edit link' => '//tr[@id="name-id"]/td[5]/a/@href',
+      'delete' => '//tr[@id="name-id"]/td[5]/a',
       'delete link' => '//tr[@id="name-id"]/td[5]/a/@href',
     );
     $all_values = array(
@@ -425,14 +425,14 @@ class Name_AdminTestCase extends NameTestHelper {
     }
 
     $raw_xpath = $this->xpath('//tr[@id="name-0"]/td[5]/a');
-    $results = $raw_xpath ? current($raw_xpath) : '__MISSING__';
+    $results = $raw_xpath?current($raw_xpath) : '__MISSING__';
     $this->assertEqual($results, t('Edit'), "Testing edit on row 0 using '//tr[@id=\"name-id\"]/td[1]/a' and expecting 'Edit', got '{$results}'.");
     $raw_xpath = $this->xpath('//tr[@id="name-0"]/td[5]/a/@href');
-    $results = $raw_xpath ? current($raw_xpath) : '__MISSING__';
+    $results = $raw_xpath?current($raw_xpath) : '__MISSING__';
 
     $this->assertEqual($results, $base_path . '?q=admin/config/content/name/settings', "Testing edit link on row 0 using '//tr[@id=\"name-id\"]/td[1]/a/@href' and expecting $base_path . '?q=admin/config/content/name/settings', got '{$results}'.");
 
-    $this->drupalGet('admin/config/content/name/settings');
+    $this->backdropGet('admin/config/content/name/settings');
 
     // Fieldset rendering check.
     $this->assertRaw('<legend><span class="fieldset-legend">Format string help</span></legend><div class="fieldset-wrapper">', 'Testing the help fieldgroup');
@@ -451,10 +451,10 @@ class Name_AdminTestCase extends NameTestHelper {
     $post_values = $default_values;
     $post_values['name_settings[default_format]'] = '';
 
-    $this->drupalPost('admin/config/content/name/settings', $post_values, t('Save configuration'));
+    $this->backdropPost('admin/config/content/name/settings', $post_values, t('Save configuration'));
     $this->assertText(t('Default format field is required.'));
     $post_values['name_settings[default_format]'] = '     ';
-    $this->drupalPost('admin/config/content/name/settings', $post_values, t('Save configuration'));
+    $this->backdropPost('admin/config/content/name/settings', $post_values, t('Save configuration'));
     $this->assertText(t('Default format field is required.'));
 
     $test_values = array(
@@ -463,7 +463,7 @@ class Name_AdminTestCase extends NameTestHelper {
       'name_settings[sep2]' => '^',
       'name_settings[sep3]' => '-',
     );
-    $this->drupalPost('admin/config/content/name/settings', $test_values, t('Save configuration'));
+    $this->backdropPost('admin/config/content/name/settings', $test_values, t('Save configuration'));
     $this->assertText(t('The configuration options have been saved.'));
 
     foreach ($test_values as $name => $value) {
@@ -471,38 +471,62 @@ class Name_AdminTestCase extends NameTestHelper {
     }
 
     // The default installed formats and the updated default format.
-    $this->drupalGet('admin/config/content/name');
+    $this->backdropGet('admin/config/content/name');
 
     $xpath = '//tr[@id="name-0"]/td[3]';
     $this->assertEqual(current($this->xpath($xpath)), 'c+ks+if+im+ig+t', 'Default is equal to set default.');
 
-    $this->drupalGet('admin/config/content/name/add');
+    $this->backdropGet('admin/config/content/name/add');
     $this->assertRaw('<legend><span class="fieldset-legend">Format string help</span></legend><div class="fieldset-wrapper">', 'Testing the help fieldgroup');
-    $values = array('name' => '', 'machine_name' => '', 'format' => '');
-    $this->drupalPost('admin/config/content/name/add', $values, t('Save'));
+    $values = array(
+      'name' => '',
+      'machine_name' => '',
+      'format' => '',
+    );
+    $this->backdropPost('admin/config/content/name/add', $values, t('Save'));
     foreach (array(t('Name'), t('Machine-readable name'), t('Format')) as $title) {
       $this->assertText(t('!field field is required', array('!field' => $title)));
     }
-    $values = array('name' => 'given', 'machine_name' => '1234567890abcdefghijklmnopqrstuvwxyz_', 'format' => 'a');
-    $this->drupalPost('admin/config/content/name/add', $values, t('Save'));
+    $values = array(
+      'name' => 'given',
+      'machine_name' => '1234567890abcdefghijklmnopqrstuvwxyz_',
+      'format' => 'a',
+    );
+    $this->backdropPost('admin/config/content/name/add', $values, t('Save'));
     $this->assertText(t('The name you have chosen is already in use.'));
     $this->assertNoText(t('!field field is required', array('!field' => t('Format'))));
     $this->assertNoText(t('!field field is required', array('!field' => t('Machine-readable name'))));
 
-    $values = array('name' => 'given', 'machine_name' => '%&*(', 'format' => 'a');
-    $this->drupalPost('admin/config/content/name/add', $values, t('Save'));
+    $values = array(
+      'name' => 'given',
+      'machine_name' => '%&*(',
+      'format' => 'a',
+    );
+    $this->backdropPost('admin/config/content/name/add', $values, t('Save'));
     $this->assertText(t('The machine-readable name must contain only lowercase letters, numbers, and underscores.'));
 
-    $values = array('name' => 'given', 'machine_name' => 'given', 'format' => 'a');
-    $this->drupalPost('admin/config/content/name/add', $values, t('Save'));
+    $values = array(
+      'name' => 'given',
+      'machine_name' => 'given',
+      'format' => 'a',
+    );
+    $this->backdropPost('admin/config/content/name/add', $values, t('Save'));
     $this->assertText(t('The machine-readable name you have chosen is already in use.'));
 
-    $values = array('name' => 'given', 'machine_name' => 'default', 'format' => 'a');
-    $this->drupalPost('admin/config/content/name/add', $values, t('Save'));
+    $values = array(
+      'name' => 'given',
+      'machine_name' => 'default',
+      'format' => 'a',
+    );
+    $this->backdropPost('admin/config/content/name/add', $values, t('Save'));
     $this->assertText(t('The machine-readable name you have chosen is reserved.'));
 
-    $values = array('name' => 'Test', 'machine_name' => 'test', 'format' => 'abc');
-    $this->drupalPost('admin/config/content/name/add', $values, t('Save'));
+    $values = array(
+      'name' => 'Test',
+      'machine_name' => 'test',
+      'format' => 'abc',
+    );
+    $this->backdropPost('admin/config/content/name/add', $values, t('Save'));
     $this->assertText(t('Custom format Test has been created.'));
 
     $new_rows = array(
@@ -533,8 +557,12 @@ class Name_AdminTestCase extends NameTestHelper {
         $this->assertEqual($results, $value, "Testing {$cell_code} on row {$id} using '{$xpath}' and expecting '{$value}', got '{$results}'.");
       }
     }
-    $values = array('name' => 'new name', 'machine_name' => 'bob', 'format' => 'f+g');
-    $this->drupalPost('admin/config/content/name/6', $values, t('Save'));
+    $values = array(
+      'name' => 'new name',
+      'machine_name' => 'bob',
+      'format' => 'f+g',
+    );
+    $this->backdropPost('admin/config/content/name/6', $values, t('Save'));
     $this->assertText(t('Custom format new name has been updated.'));
     $new_rows = array(
       6 => array(
@@ -560,15 +588,15 @@ class Name_AdminTestCase extends NameTestHelper {
       }
     }
 
-    $this->drupalGet('admin/config/content/name/60');
+    $this->backdropGet('admin/config/content/name/60');
     $this->assertText(t('The custom format could not be found.'));
-    $this->drupalGet('admin/config/content/name/60/delete');
+    $this->backdropGet('admin/config/content/name/60/delete');
     $this->assertText(t('The custom format could not be found.'));
 
-    $this->drupalPost('admin/config/content/name/4', array(), t('Delete'));
+    $this->backdropPost('admin/config/content/name/4', array(), t('Delete'));
     $this->assertText(t('Are you sure you want to delete the custom format !title ("t+if")?', array('!title' => check_plain(t('Title Family')))));
 
-    $this->drupalPost(NULL, array('confirm' => 1), t('Delete'));
+    $this->backdropPost(NULL, array('confirm' => 1), t('Delete'));
     $this->assertText(t('The custom name format !title was deleted.', array('!title' => check_plain('Title Family'))));
 
   }
@@ -593,10 +621,10 @@ class Name_FieldTestCase extends NameTestHelper {
 
   /**
    * The most basic test. This should only fail if there is a change to the
-   * Drupal API.
+   * Backdrop API.
    */
   public function testFieldEntry() {
-    $this->drupalLogin($this->admin_user);
+    $this->backdropLogin($this->admin_user);
 
     $new_name_field = array(
       'fields[_add_new_field][label]' => 'Test name',
@@ -605,7 +633,7 @@ class Name_FieldTestCase extends NameTestHelper {
       'fields[_add_new_field][widget_type]' => 'name_widget',
     );
 
-    $this->drupalPost('admin/structure/types/manage/page/fields', $new_name_field, t('Save'));
+    $this->backdropPost('admin/structure/types/manage/page/fields', $new_name_field, t('Save'));
 
     // Required test.
     $field_settings = array();
@@ -615,7 +643,7 @@ class Name_FieldTestCase extends NameTestHelper {
     foreach ($this->name_getFieldSettingsCheckboxes() as $key => $value) {
       $field_settings[$key] = FALSE;
     }
-    $this->drupalPost('admin/structure/types/manage/page/fields/field_name_test/field-settings',
+    $this->backdropPost('admin/structure/types/manage/page/fields/field_name_test/field-settings',
       $field_settings, t('Save field settings'));
 
     $n = _name_translations();
@@ -626,7 +654,6 @@ class Name_FieldTestCase extends NameTestHelper {
       t('Label for !field field is required.', array('!field' => $n['family'])),
       t('Label for !field field is required.', array('!field' => $n['generational'])),
       t('Label for !field field is required.', array('!field' => $n['credentials'])),
-
       t('Maximum length for !field field is required.', array('!field' => $n['title'])),
       t('Maximum length for !field field is required.', array('!field' => $n['given'])),
       t('Maximum length for !field field is required.', array('!field' => $n['middle'])),
@@ -635,7 +662,6 @@ class Name_FieldTestCase extends NameTestHelper {
       t('Maximum length for !field field is required.', array('!field' => $n['credentials'])),
       t('!field options field is required.', array('!field' => $n['title'])),
       t('!field options field is required.', array('!field' => $n['generational'])),
-
       // There is now empty tests on both of these fields, so the second
       // message will not show if the required message is shown.
       t('!field field is required.', array('!field' => t('Components'))),
@@ -653,45 +679,38 @@ class Name_FieldTestCase extends NameTestHelper {
       'field[settings][components][family]' => TRUE,
       'field[settings][components][generational]' => FALSE,
       'field[settings][components][credentials]' => FALSE,
-
       'field[settings][minimum_components][title]' => TRUE,
       'field[settings][minimum_components][given]' => FALSE,
       'field[settings][minimum_components][middle]' => FALSE,
       'field[settings][minimum_components][family]' => FALSE,
       'field[settings][minimum_components][generational]' => TRUE,
       'field[settings][minimum_components][credentials]' => TRUE,
-
       'field[settings][max_length][title]' => 0,
       'field[settings][max_length][given]' => -456,
       'field[settings][max_length][middle]' => 'asdf',
       'field[settings][max_length][family]' => 3454,
       'field[settings][max_length][generational]' => 4.5,
       'field[settings][max_length][credentials]' => 'NULL',
-
       'field[settings][title_options]' => "-- --\nMr.\nMrs.\nMiss\nMs.\nDr.\nProf.\n[vocabulary:machine]",
       'field[settings][generational_options]' => "-- --\nJr.\nSr.\nI\nII\nIII\nIV\nV\nVI\nVII\nVIII\nIX\nX\n[vocabulary:123]",
-
     );
-    $this->drupalPost('admin/structure/types/manage/page/fields/field_name_test/field-settings',
+    $this->backdropPost('admin/structure/types/manage/page/fields/field_name_test/field-settings',
       $field_settings, t('Save field settings'));
 
     $required_messages = array(
       t('!components can not be selected for !label when they are not selected for !label2.',
               array(
-                '!label' => t('Minimum components'),
-                '!label2' => t('Components'),
-                '!components' => check_plain(implode(', ', array($n['title'], $n['generational'], $n['credentials']))),
-              )),
-
+        '!label' => t('Minimum components'),
+        '!label2' => t('Components'),
+        '!components' => check_plain(implode(', ', array($n['title'], $n['generational'], $n['credentials']))),
+      )),
       t('!field must be a positive integer between 1 and 255.', array('!field' => $n['title'])),
       t('!field must be a positive integer between 1 and 255.', array('!field' => $n['given'])),
       t('!field must be a positive integer between 1 and 255.', array('!field' => $n['middle'])),
       t('!field must be a positive integer between 1 and 255.', array('!field' => $n['family'])),
       t('!field must be a positive integer between 1 and 255.', array('!field' => $n['generational'])),
       t('!field must be a positive integer between 1 and 255.', array('!field' => $n['credentials'])),
-
       t('!field must have one of the following components: !components', array('!field' => t('Minimum components'), '!components' => check_plain(implode(', ', array($n['given'], $n['family']))))),
-
       t("The vocabulary 'machine' in !field could not be found.", array('!field' => t('!title options', array('!title' => $n['title'])))),
       t("The vocabulary '123' in !field could not be found.", array('!field' => t('!generational options', array('!generational' => $n['generational'])))),
     );
@@ -703,12 +722,10 @@ class Name_FieldTestCase extends NameTestHelper {
     $field_settings = array(
       'field[settings][max_length][title]' => 5,
       'field[settings][max_length][generational]' => 3,
-
       'field[settings][title_options]' => "Aaaaa.\n-- --\nMr.\nMrs.\nBbbbbbbb\nMiss\nMs.\nDr.\nProf.\nCcccc.",
       'field[settings][generational_options]' => "AAAA\n-- --\nJr.\nSr.\nI\nII\nIII\nIV\nV\nVI\nVII\nVIII\nIX\nX\nBBBB",
-
     );
-    $this->drupalPost('admin/structure/types/manage/page/fields/field_name_test/field-settings',
+    $this->backdropPost('admin/structure/types/manage/page/fields/field_name_test/field-settings',
       $field_settings, t('Save field settings'));
     $required_messages = array(
       t('The following options exceed the maximun allowed !field length: Aaaaa., Bbbbbbbb, Ccccc.', array('!field' => t('!title options', array('!title' => $n['title'])))),
@@ -723,9 +740,8 @@ class Name_FieldTestCase extends NameTestHelper {
     $field_settings = array(
       'field[settings][title_options]' => " \n-- --\n ",
       'field[settings][generational_options]' => " \n-- --\n ",
-
     );
-    $this->drupalPost('admin/structure/types/manage/page/fields/field_name_test/field-settings',
+    $this->backdropPost('admin/structure/types/manage/page/fields/field_name_test/field-settings',
       $field_settings, t('Save field settings'));
     $required_messages = array(
       t('!field are required.', array('!field' => t('!title options', array('!title' => $n['title'])))),
@@ -739,9 +755,8 @@ class Name_FieldTestCase extends NameTestHelper {
     $field_settings = array(
       'field[settings][title_options]' => "-- --\nMr.\nMrs.\nMiss\n-- Bob\nDr.\nProf.",
       'field[settings][generational_options]' => "-- --\nJr.\nSr.\nI\nII\nIII\nIV\nV\nVI\n--",
-
     );
-    $this->drupalPost('admin/structure/types/manage/page/fields/field_name_test/field-settings',
+    $this->backdropPost('admin/structure/types/manage/page/fields/field_name_test/field-settings',
       $field_settings, t('Save field settings'));
     $required_messages = array(
       t('!field can only have one blank value assigned to it.', array('!field' => t('!title options', array('!title' => $n['title'])))),
@@ -752,7 +767,7 @@ class Name_FieldTestCase extends NameTestHelper {
     }
 
     // Save the field again with the default values.
-    $this->drupalPost('admin/structure/types/manage/page/fields/field_name_test/field-settings',
+    $this->backdropPost('admin/structure/types/manage/page/fields/field_name_test/field-settings',
       $this->name_getFieldSettings(), t('Save field settings'));
 
     $this->assertText(t('Updated field Test name field settings.'));
@@ -766,45 +781,38 @@ class Name_FieldTestCase extends NameTestHelper {
       'field[settings][components][family]' => TRUE,
       'field[settings][components][generational]' => FALSE,
       'field[settings][components][credentials]' => FALSE,
-
       'field[settings][minimum_components][title]' => TRUE,
       'field[settings][minimum_components][given]' => FALSE,
       'field[settings][minimum_components][middle]' => FALSE,
       'field[settings][minimum_components][family]' => FALSE,
       'field[settings][minimum_components][generational]' => TRUE,
       'field[settings][minimum_components][credentials]' => TRUE,
-
       'field[settings][max_length][title]' => 0,
       'field[settings][max_length][given]' => -456,
       'field[settings][max_length][middle]' => 'asdf',
       'field[settings][max_length][family]' => 3454,
       'field[settings][max_length][generational]' => 4.5,
       'field[settings][max_length][credentials]' => 'NULL',
-
       'field[settings][title_options]' => "-- --\nMr.\nMrs.\nMiss\nMs.\nDr.\nProf.\n[vocabulary:machine]",
       'field[settings][generational_options]' => "-- --\nJr.\nSr.\nI\nII\nIII\nIV\nV\nVI\nVII\nVIII\nIX\nX\n[vocabulary:123]",
-
     );
-    $this->drupalPost('admin/structure/types/manage/page/fields/field_name_test',
+    $this->backdropPost('admin/structure/types/manage/page/fields/field_name_test',
       $field_settings, t('Save settings'));
 
     $required_messages = array(
       t('!components can not be selected for !label when they are not selected for !label2.',
               array(
-                '!label' => t('Minimum components'),
-                '!label2' => t('Components'),
-                '!components' => check_plain(implode(', ', array($n['title'], $n['generational'], $n['credentials']))),
-              )),
-
+        '!label' => t('Minimum components'),
+        '!label2' => t('Components'),
+        '!components' => check_plain(implode(', ', array($n['title'], $n['generational'], $n['credentials']))),
+      )),
       t('!field must be a positive integer between 1 and 255.', array('!field' => $n['title'])),
       t('!field must be a positive integer between 1 and 255.', array('!field' => $n['given'])),
       t('!field must be a positive integer between 1 and 255.', array('!field' => $n['middle'])),
       t('!field must be a positive integer between 1 and 255.', array('!field' => $n['family'])),
       t('!field must be a positive integer between 1 and 255.', array('!field' => $n['generational'])),
       t('!field must be a positive integer between 1 and 255.', array('!field' => $n['credentials'])),
-
       t('!field must have one of the following components: !components', array('!field' => t('Minimum components'), '!components' => check_plain(implode(', ', array($n['given'], $n['family']))))),
-
       t("The vocabulary 'machine' in !field could not be found.", array('!field' => t('!title options', array('!title' => $n['title'])))),
       t("The vocabulary '123' in !field could not be found.", array('!field' => t('!generational options', array('!generational' => $n['generational'])))),
     );
@@ -820,14 +828,12 @@ class Name_FieldTestCase extends NameTestHelper {
       'instance[settings][title_display][family]' => 'description',
       'instance[settings][title_display][generational]' => 'description',
       'instance[settings][title_display][credentials]' => 'description',
-
       'instance[settings][size][title]' => 6,
       'instance[settings][size][given]' => 20,
       'instance[settings][size][middle]' => 20,
       'instance[settings][size][family]' => 20,
       'instance[settings][size][generational]' => 5,
       'instance[settings][size][credentials]' => 35,
-
       'instance[settings][inline_css][title]' => '',
       'instance[settings][inline_css][given]' => '',
       'instance[settings][inline_css][middle]' => '',
@@ -836,7 +842,7 @@ class Name_FieldTestCase extends NameTestHelper {
       'instance[settings][inline_css][credentials]' => '',
     );
 
-    $this->drupalGet('admin/structure/types/manage/page/fields/field_name_test');
+    $this->backdropGet('admin/structure/types/manage/page/fields/field_name_test');
 
     foreach ($widget_settings as $name => $value) {
       $this->assertFieldByName($name, $value);
@@ -973,11 +979,11 @@ class Name_FieldTestCase extends NameTestHelper {
     ));
 
     // Login as webuser.
-    $web_user = $this->drupalCreateUser(array('access content'));
-    $this->drupalLogin($web_user);
+    $web_user = $this->backdropCreateUser(array('access content'));
+    $this->backdropLogin($web_user);
 
     // Go to own edit account page.
-    $this->drupalGet('user/' . $web_user->uid . '/edit');
+    $this->backdropGet('user/' . $web_user->uid . '/edit');
 
     // Assert expected fields.
     $expected_fields = array(
@@ -1004,34 +1010,28 @@ class Name_FieldTestCase extends NameTestHelper {
       'field[settings][components][family]' => TRUE,
       'field[settings][components][generational]' => TRUE,
       'field[settings][components][credentials]' => TRUE,
-
       'field[settings][minimum_components][title]' => FALSE,
       'field[settings][minimum_components][given]' => TRUE,
       'field[settings][minimum_components][middle]' => FALSE,
       'field[settings][minimum_components][family]' => TRUE,
       'field[settings][minimum_components][generational]' => FALSE,
       'field[settings][minimum_components][credentials]' => FALSE,
-
       'field[settings][max_length][title]' => 31,
       'field[settings][max_length][given]' => 63,
       'field[settings][max_length][middle]' => 127,
       'field[settings][max_length][family]' => 63,
       'field[settings][max_length][generational]' => 15,
       'field[settings][max_length][credentials]' => 255,
-
       'field[settings][labels][title]' => t('Title'),
       'field[settings][labels][given]' => t('Given'),
       'field[settings][labels][middle]' => t('Middle name(s)'),
       'field[settings][labels][family]' => t('Family'),
       'field[settings][labels][generational]' => t('Generational'),
       'field[settings][labels][credentials]' => t('Credentials'),
-
       'field[settings][sort_options][title]' => TRUE,
       'field[settings][sort_options][generational]' => FALSE,
-
       'field[settings][title_options]' => "-- --\nMr.\nMrs.\nMiss\nMs.\nDr.\nProf.",
       'field[settings][generational_options]' => "-- --\nJr.\nSr.\nI\nII\nIII\nIV\nV\nVI\nVII\nVIII\nIX\nX",
-
     );
     return $field_settings;
   }
@@ -1047,14 +1047,12 @@ class Name_FieldTestCase extends NameTestHelper {
       'field[settings][components][family]' => TRUE,
       'field[settings][components][generational]' => TRUE,
       'field[settings][components][credentials]' => TRUE,
-
       'field[settings][minimum_components][title]' => FALSE,
       'field[settings][minimum_components][given]' => TRUE,
       'field[settings][minimum_components][middle]' => FALSE,
       'field[settings][minimum_components][family]' => TRUE,
       'field[settings][minimum_components][generational]' => FALSE,
       'field[settings][minimum_components][credentials]' => FALSE,
-
       'field[settings][sort_options][title]' => TRUE,
       'field[settings][sort_options][generational]' => FALSE,
     );

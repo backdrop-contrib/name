@@ -25,7 +25,7 @@ function name_devel_generate($object, $field, $instance, $bundle) {
  * You can specify another function here to generate your own list.
  */
 function _name_devel_generate($object, $field, $instance, $bundle) {
-  $func = variable_get('name_devel_generate_names', '_name_devel_generate_name');
+  $func = config_get('name.settings', 'name_devel_generate_names');
   $names = $func($field);
   if (!isset($instance['setting']['components'])) {
     $instance['setting']['components'] = array();
@@ -42,7 +42,7 @@ function _name_devel_generate($object, $field, $instance, $bundle) {
  *   A name field to generate names from.
  */
 function _name_devel_generate_name($field) {
-  $names = &drupal_static(__FUNCTION__, array());
+  $names = &backdrop_static(__FUNCTION__, array());
 
   // Generate 50 random names based off the field settings. These are stored
   // for future use to prevent the need to regenerate these.

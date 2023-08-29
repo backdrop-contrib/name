@@ -36,11 +36,22 @@ function name_format($name_components, $format, $settings = array()) {
 }
 
 /**
+ * Implements hook_config_info().
+ */
+function name_config_info() {
+  $prefixes['name.settings'] = array(
+    'label' => t('Name Field settings'),
+    'group' => t('Configuration'),
+  );
+  return $prefixes;
+}
+
+/**
  * Handles the initialization of the Name module settings that are stored in
  * the {variables} table.
  */
 function name_settings($key = NULL) {
-  $settings = variable_get('name_settings', array());
+  $settings = config_get('name.settings', 'name_settings');
   $settings += array(
     'default_format' => '((((t+ig)+im)+if)+is)+jc',
     'sep1' => ' ',
@@ -92,7 +103,7 @@ function name_menu() {
   );
   $items['admin/config/content/name/add'] = array(
     'title' => 'Add name format',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('name_custom_formats_form'),
     'access arguments' => array('administer site configuration'),
     'file' => 'name.admin.inc',
@@ -100,7 +111,7 @@ function name_menu() {
   );
   $items['admin/config/content/name/settings'] = array(
     'title' => 'Settings',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('name_admin_settings_form'),
     'access arguments' => array('administer site configuration'),
     'file' => 'name.admin.inc',
@@ -117,7 +128,7 @@ function name_menu() {
   );
   $items['admin/config/content/name/%/delete'] = array(
     'title' => 'Delete custom name format',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('name_custom_format_delete_form', 4),
     'access arguments' => array('administer site configuration'),
     'file' => 'name.admin.inc',
@@ -136,11 +147,18 @@ function name_theme() {
     // integration but will be extended at some stage to theme the formatter
     // items too.
     'name_item' => array(
-      'variables' => array('item' => array(), 'format' => NULL, 'settings' => array()),
+      'variables' => array(
+        'item' => array(),
+        'format' => NULL,
+        'settings' => array(),
+      ),
     ),
     // This themes an element into the "name et al" format.
     'name_item_list' => array(
-      'variables' => array('items' => array(), 'settings' => array()),
+      'variables' => array(
+        'items' => array(),
+        'settings' => array(),
+      ),
     ),
     // Themes the FAPI element.
     'name_element' => array(
@@ -148,7 +166,11 @@ function name_theme() {
     ),
     // Provides a marker to highlight that the component is required.
     'name_component_required_marker' => array(
-      'variables' => array('base_element' => NULL, 'component_key' => NULL, 'components' => NULL),
+      'variables' => array(
+        'base_element' => NULL,
+        'component_key' => NULL,
+        'components' => NULL,
+      ),
     ),
     // Provides the help for the recognized characters in the name_format()
     // format parameter.
@@ -187,7 +209,7 @@ function name_render_component($value, $component_key, $markup, $modifier = NULL
   }
   switch ($modifier) {
     case 'initial':
-      $value = drupal_substr($value, 0, 1);
+      $value = backdrop_substr($value, 0, 1);
       break;
 
   }
@@ -211,7 +233,7 @@ function theme_name_component_required_marker($variables) {
   $components = $variables['components'];
   $component_key = $variables['component_key'];
   $name_translations = _name_translations();
-  $title = empty($base_element['#title']) ? t('Name') : $base_element['#title'];
+  $title = empty($base_element['#title'])?t('Name') : $base_element['#title'];
   if (!empty($base_element['#allow_family_or_given']) && ($component_key == 'given' || $component_key == 'family')) {
     $title_attribute = t('!given_title or !family_title is required when entering a !title.', array(
       '!given_title' => empty($components['given']['title']) ? $name_translations['given'] : $components['given']['title'],
@@ -224,7 +246,7 @@ function theme_name_component_required_marker($variables) {
     $title_attribute = t('!component_title is required when entering a !title.', array('!component_title' => $component_title, '!title' => $title));
   }
   // Both field label and component labels have already been sanitized.
-  return ' <span class="name-required-component-marker" title="' . $title_attribute . '">' . variable_get('name_component_required_marker', '*') . '</span>';
+  return ' <span class="name-required-component-marker" title="' . $title_attribute . '">' . config_get('name.settings', 'name_component_required_marker') . '</span>';
 }
 
 /**
@@ -242,7 +264,7 @@ function name_username_alter(&$name, $account) {
     name_username_alter_preload($account);
   }
 
-  if (isset($account->realname) && drupal_strlen($account->realname)) {
+  if (isset($account->realname) && backdrop_strlen($account->realname)) {
     $name = $account->realname;
   }
 }
@@ -257,7 +279,7 @@ function name_username_alter_preload(&$account) {
   static $in_preload = FALSE;
 
   if (!$in_preload && !isset($account->realname)) {
-    $field_name = variable_get('name_user_preferred', FALSE);
+    $field_name = config_get('name.settings', 'name_user_preferred');
     if ($field_name && $instance = field_info_instance('user', $field_name, 'user')) {
       $in_preload = TRUE;
       $account = user_load($account->uid);
@@ -271,9 +293,9 @@ function name_username_alter_preload(&$account) {
  */
 function name_user_load(array $accounts) {
   // In the event there are a lot of user_load() calls, cache the results.
-  $names = &drupal_static(__FUNCTION__, array());
+  $names = &backdrop_static(__FUNCTION__, array());
 
-  $field_name = variable_get('name_user_preferred', FALSE);
+  $field_name = config_get('name.settings', 'name_user_preferred');
   if ($field_name && $instance = field_info_instance('user', $field_name, 'user')) {
     $format = name_get_format_by_machine_name($instance['settings']['override_format']);
     if (empty($format)) {
@@ -331,12 +353,12 @@ function name_get_custom_format_options() {
  *   The name format.
  */
 function name_get_format_by_machine_name($machine_name) {
-  static $drupal_static_fast;
-  if (!isset($drupal_static_fast)) {
-    $drupal_static_fast['formats'] = &drupal_static(__FUNCTION__);
+  static $backdrop_static_fast;
+  if (!isset($backdrop_static_fast)) {
+    $backdrop_static_fast['formats'] = &backdrop_static(__FUNCTION__);
   }
 
-  $formats = &$drupal_static_fast['formats'];
+  $formats = &$backdrop_static_fast['formats'];
   if (!isset($formats[$machine_name])) {
     if ($machine_name == 'default') {
       $formats[$machine_name] = name_settings('default_format');
@@ -358,7 +380,7 @@ function name_get_format_by_machine_name($machine_name) {
 function _name_translations($intersect = NULL) {
   static $nt = NULL;
   if (!isset($nt)) {
-    $nt = variable_get('name_field_part_overrides', 0);
+    $nt = config_get('name.settings', 'name_field_part_overrides');
     if (!$nt) {
       $nt = array(
         'title' => t('!name_title', array('!name_title' => t('Title'))),
@@ -508,7 +530,7 @@ function name_element_info() {
  */
 function theme_name_element($variables) {
   $element = $variables['element'];
-  return drupal_render_children($element);
+  return backdrop_render_children($element);
 }
 
 /**
@@ -579,7 +601,7 @@ function theme_name_item_list($variables) {
 
     // Strange rule from http://citationstyles.org/downloads/specification.html.
     if (($settings['multiple_delimiter_precedes_last'] == 'contextual' && $original_count > 2)
-        || $settings['multiple_delimiter_precedes_last'] == 'always') {
+          || $settings['multiple_delimiter_precedes_last'] == 'always') {
       return t('!names!delimiter !and !lastname', $t_args);
     }
     else {
@@ -592,6 +614,7 @@ function theme_name_item_list($variables) {
  * The #process callback to create the element.
  */
 function name_element_expand($element, &$form_state, $complete_form) {
+  $config = config('name.settings');
   global $language;
 
   $element['#tree'] = TRUE;
@@ -619,12 +642,12 @@ function name_element_expand($element, &$form_state, $complete_form) {
   else {
     // Language will be LANGUAGE_LTR (0) or LANGUAGE_RTL (1).
     if ($language->direction) {
-      if ($style = variable_get('name_inline_styles_rtl', 'float: right; margin-left: 1em;')) {
+      if ($style = $config->get('name_inline_styles_rtl')) {
         $inline_css = ' style="' . $style . '"';
       }
     }
     else {
-      if ($style = variable_get('name_inline_styles', 'float: left; margin-right: 1em;')) {
+      if ($style = $config->get('name_inline_styles')) {
         $inline_css = ' style="' . $style . '"';
       }
     }
@@ -646,7 +669,7 @@ function name_element_expand($element, &$form_state, $complete_form) {
       }
     }
   }
-  if (variable_get('name_element_wrapper', 1)) {
+  if ($config->get('name_element_wrapper')) {
     $element['#prefix'] = '<div class="clearfix">';
     $element['#suffix'] = '</div>';
   }
@@ -801,7 +824,7 @@ function name_element_validate($element, &$form_state) {
  */
 function name_element_pre_render($element) {
   // Add a wrapper to fields if required.
-  if (variable_get('name_element_wrapper', 1)) {
+  if (config_get('name.settings', 'name_element_wrapper')) {
     $element['_name'] = array(
       '#prefix' => '<div class="clearfix">',
       '#suffix' => '</div>',
@@ -886,7 +909,7 @@ function name_field_info() {
       'default_formatter' => 'name_formatter',
       'settings' => array(
         // Components used. At least given or family name is required.
-        'components' => drupal_map_assoc($keys),
+        'components' => backdrop_map_assoc($keys),
         // Minimal set of components before considered incomplete.
         'minimum_components' => array(
           'given' => 'given',
@@ -983,7 +1006,7 @@ function name_field_settings_form_validate($form, &$form_state) {
  *
  * @todo
  * Look at reintroducing this at some stage. Currently, this is problematic as
- * Drupal appears to loss track of what fields are shown on the form and this
+ * Backdrop appears to loss track of what fields are shown on the form and this
  * results in validation errors.
  */
 // @code
@@ -1087,7 +1110,7 @@ function name_field_widget_info() {
 /**
  * Implements hook_field_widget_error().
  *
- * Validation on required is done here. The max. length is done via Drupal.
+ * Validation on required is done here. The max. length is done via Backdrop.
  * Min. components is done via name_element validation callback.
  *
  * @todo
@@ -1177,7 +1200,7 @@ function name_field_autocomplete_query($components, $base_string, $string, $fiel
   $component_key = $arguments;
   $matches = array();
   foreach (name_field_get_options($field, $component_key) as $key => $option) {
-    if (strpos(drupal_strtolower($key), $string) === 0 || strpos(drupal_strtolower($option), $string) === 0) {
+    if (strpos(backdrop_strtolower($key), $string) === 0 || strpos(backdrop_strtolower($option), $string) === 0) {
       $matches[$base_string . $key] = $key;
       $limit--;
     }
@@ -1331,14 +1354,14 @@ function name_field_formatter_settings_form($field, $instance, $view_mode, $form
   $element['multiple_el_al_min'] = $base + array(
     '#type' => 'select',
     '#title' => t('Reduce list and append <em>el al</em>'),
-    '#options' => array(0 => t('Never reduce')) + drupal_map_assoc(range(1, 20)),
+    '#options' => array(0 => t('Never reduce')) + backdrop_map_assoc(range(1, 20)),
     '#default_value' => $settings['multiple_el_al_min'],
     '#description' => t('This specifies a limit on the number of names to display. After this limit, names are removed and the abbrivation <em>et al</em> is appended. This Latin abbrivation of <em>et alii</em> means "and others".'),
   );
   $element['multiple_el_al_first'] = $base + array(
     '#type' => 'select',
     '#title' => t('Number of names to display when using <em>el al</em>'),
-    '#options' => drupal_map_assoc(range(1, 20)),
+    '#options' => backdrop_map_assoc(range(1, 20)),
     '#default_value' => $settings['multiple_el_al_first'],
   );
 
@@ -1392,7 +1415,7 @@ function name_field_formatter_settings_summary($field, $instance, $view_mode) {
   }
 
   $summary[] = t('Markup: @yesno', array(
-    '@yesno' => empty($settings['markup']) ? t('no') : t('yes'),
+    '@yesno' => empty($settings['markup'])?t('no') : t('yes'),
   ));
   $output_options = _name_formatter_output_options();
   $output = empty($settings['output']) ? 'default' : $settings['output'];
@@ -1483,7 +1506,7 @@ function name_field_parse_additional_components($entity_type, $entity, $instance
   $map = array(
     'preferred' => 'preferred_field_reference',
   );
-  list(,, $bundle) = entity_extract_ids($entity_type, $entity);
+  list(, , $bundle) = entity_extract_ids($entity_type, $entity);
   foreach ($map as $component => $key) {
     if (!empty($settings[$key])) {
       if ($settings[$key] == '_self') {
@@ -1514,7 +1537,7 @@ function name_field_parse_additional_components($entity_type, $entity, $instance
           }
           $_display['label'] = 'hidden';
           $_element = field_view_field($entity_type, $clone, $settings[$key], $_display, $_langcode);
-          if ($output = trim(strip_tags(drupal_render($_element)))) {
+          if ($output = trim(strip_tags(backdrop_render($_element)))) {
             $extra[$component] = decode_entities($output);
           }
         }
@@ -1615,7 +1638,7 @@ function name_field_settings_pre_render($form) {
  */
 function name_field_create_instance($instance) {
   if ($instance['entity_type'] == 'user' && !empty($instance['settings']['name_user_preferred'])) {
-    variable_set('name_user_preferred', $instance['field_name']);
+    config_set('name.settings', 'name_user_preferred', $instance['field_name']);
   }
 }
 
@@ -1626,10 +1649,10 @@ function name_field_update_instance($instance, $prior_instance) {
   // I'm only targeting user entities here.
   if ($instance['entity_type'] == 'user') {
     if (!empty($instance['settings']['name_user_preferred'])) {
-      variable_set('name_user_preferred', $instance['field_name']);
+      config_set('name.settings', 'name_user_preferred', $instance['field_name']);
     }
     elseif (!empty($prior_instance['settings']['name_user_preferred'])) {
-      variable_set('name_user_preferred', '');
+      config_set('name.settings', 'name_user_preferred', '');
     }
   }
 }
@@ -1639,7 +1662,7 @@ function name_field_update_instance($instance, $prior_instance) {
  */
 function name_field_delete_instance($instance) {
   if ($instance['entity_type'] == 'user' && !empty($instance['settings']['name_user_preferred'])) {
-    variable_set('name_user_preferred', '');
+    config_set('name.settings', 'name_user_preferred', '');
   }
 }
 
@@ -1683,7 +1706,7 @@ function name_field_update($entity_type, $entity, $field, $instance, $langcode, 
 function name_translite_word($word) {
   static $translations;
   if (!isset($translations)) {
-    $file = drupal_get_path('module', 'name') . '/' . 'i18n-ascii.txt';
+    $file = backdrop_get_path('module', 'name') . '/' . 'i18n-ascii.txt';
     $translations = parse_ini_file($file);
   }
   return strtr($word, $translations);
@@ -1695,7 +1718,7 @@ function name_translite_word($word) {
 function name_translite_letters($base = 'a-zA-Z') {
   static $letters;
   if (!isset($letters)) {
-    $file = drupal_get_path('module', 'name') . '/' . 'i18n-ascii.txt';
+    $file = backdrop_get_path('module', 'name') . '/' . 'i18n-ascii.txt';
     $letters = '';
     $translations = parse_ini_file($file);
     foreach ($translations as $l => $t) {
@@ -1745,37 +1768,37 @@ function name_clean_name_component($name, $data_key = 'user_data', $letters = 'a
     $min = 1;
   }
 
-  if (empty($name) || strpos($name, '-') || drupal_strlen($name) < $min) {
+  if (empty($name) || strpos($name, '-') || backdrop_strlen($name) < $min) {
     return FALSE;
   }
 
   if (preg_match('/^de la ([' . $letters . ']{' . $min . ',})$/i', $name, $match)) {
-    return 'De la ' . drupal_ucfirst($match[1]);
+    return 'De la ' . backdrop_ucfirst($match[1]);
   }
   elseif (preg_match('/^(van|von) (de|den|der) ([' . $letters . ']{' . $min . ',})$/i', $name, $match)) {
-    return drupal_ucfirst(drupal_strtolower($match[1])) . ' ' . drupal_strtolower($match[2]) . ' ' . drupal_ucfirst($match[3]);
+    return backdrop_ucfirst(backdrop_strtolower($match[1])) . ' ' . backdrop_strtolower($match[2]) . ' ' . backdrop_ucfirst($match[3]);
   }
   elseif (preg_match('/^(st\.|st|staint) ([' . $letters . ']{' . $min . ',})$/i', $name, $match)) {
-    return 'Staint ' . drupal_ucfirst($match[2]);
+    return 'Staint ' . backdrop_ucfirst($match[2]);
   }
   elseif (preg_match('/^(d|l|m|o) *\' *([' . $letters . ']{' . $min . ',})$/i', $name, $match)) {
-    return drupal_strtoupper($match[1]) . "'" . drupal_ucfirst($match[2]);
+    return backdrop_strtoupper($match[1]) . "'" . backdrop_ucfirst($match[2]);
   }
   elseif (preg_match('/^(de|del|des|di|du|la|le|van|von) ([' . $letters . ']{' . $min . ',})$/i', $name, $match)) {
-    return drupal_ucfirst(drupal_strtolower($match[1])) . ' ' . drupal_ucfirst($match[2]);
+    return backdrop_ucfirst(backdrop_strtolower($match[1])) . ' ' . backdrop_ucfirst($match[2]);
   }
   elseif (preg_match('/^(mc|mac) ([' . $letters . ']{' . $min . ',})$/i', $name, $match)) {
-    return drupal_ucfirst(drupal_strtolower($match[1])) . drupal_ucfirst($match[2]);
+    return backdrop_ucfirst(backdrop_strtolower($match[1])) . backdrop_ucfirst($match[2]);
   }
   elseif (preg_match('/^([' . $letters . ']{' . $min . ',}) de ([' . $letters . ']{' . $min . ',})$/i', $name, $match)) {
-    return drupal_ucfirst(drupal_strtolower($match[1])) . ' de ' . drupal_ucfirst($match[2]);
+    return backdrop_ucfirst(backdrop_strtolower($match[1])) . ' de ' . backdrop_ucfirst($match[2]);
   }
   elseif (preg_match('/^[' . $letters . ']{' . $min . ',}$/i', $name)) {
-    return drupal_ucfirst($name);
+    return backdrop_ucfirst($name);
   }
   if ($settings[$data_key]['hyphenated']) {
     if (preg_match('/^([' . $letters . ']{' . $min . ',}) *\- *([' . $letters . ']{' . $min . ',})$/i', $name)) {
-      return drupal_ucfirst($match[1]) . '-' . drupal_ucfirst($match[2]);
+      return backdrop_ucfirst($match[1]) . '-' . backdrop_ucfirst($match[2]);
     }
   }
   return FALSE;
@@ -1886,7 +1909,7 @@ function name_features_api() {
       'name' => t('Name formats'),
       'default_hook' => 'name_default_formats',
       'feature_source' => TRUE,
-      'file' => drupal_get_path('module', 'name') . '/includes/name.features.inc',
+      'file' => backdrop_get_path('module', 'name') . '/includes/name.features.inc',
     ),
   );
 }
@@ -1913,5 +1936,15 @@ function name_name_data_sources() {
       'autocomplete arguments' => array('generational'),
       'list callback' => 'name_field_get_options',
     ),
+  );
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function name_autoload_info() {
+  return array(
+    'name_handler_filter_name_fulltext' => 'includes/name_handler_filter_name_fulltext.inc',
+    'MigrateNameHandler' => 'name.migrate.inc',
   );
 }

@@ -237,7 +237,7 @@ function _name_options_validate($options, $max, $label, $error_element) {
         }
       }
     }
-    elseif (drupal_strlen($value) > $max) {
+    elseif (backdrop_strlen($value) > $max) {
       $long_options[] = $value;
     }
     elseif (!empty($value)) {
@@ -268,10 +268,10 @@ function _name_field_components_validate($components, $minimum, $error_element) 
     form_set_error($error_element . '][' . key($diff),
       t('%components can not be selected for %label when they are not selected for %label2.',
         array(
-          '%label' => t('Minimum components'),
-          '%label2' => t('Components'),
-          '%components' => implode(', ', $components),
-        )
+      '%label' => t('Minimum components'),
+      '%label2' => t('Components'),
+      '%components' => implode(', ', $components),
+    )
       )
     );
   }
@@ -310,7 +310,7 @@ function _name_field_instance_settings_form($field, $instance = NULL) {
     $form['field_type'][$key] = array(
       '#type' => 'radios',
       '#title' => t('!title field type', array('!title' => $components['title'])),
-      // Provides backwards compatibility with Drupal 6 modules.
+      // Provides backwards compatibility with Backdrop 6 modules.
       '#default_value' => isset($settings['field_type'][$key]) ? $settings['field_type'][$key] : (isset($settings[$key . '_field']) ? $settings[$key . '_field'] : $default_field_type),
       '#required' => TRUE,
       '#options' => $options,
@@ -406,7 +406,7 @@ function _name_field_instance_settings_form($field, $instance = NULL) {
 
   // Add the overwrite user name option.
   if ($instance['entity_type'] == 'user' && $instance['bundle'] == 'user') {
-    $preferred_field = variable_get('name_user_preferred', '');
+    $preferred_field = config_get('name.settings', 'name_user_preferred');
     $form['name_user_preferred'] = array(
       '#type' => 'checkbox',
       '#title' => t('Use this field to override the users login name?'),
@@ -505,7 +505,7 @@ function _name_field_widget_form(&$form, &$form_state, $field, $instance, $langc
           }
         }
       }
-      // Provides backwards compatibility with Drupal 6 modules.
+      // Provides backwards compatibility with Backdrop 6 modules.
       $field_type = isset($ws['field_type'][$key])
           ? $ws['field_type'][$key]
           // Provides .
@@ -523,7 +523,7 @@ function _name_field_widget_form(&$form, &$form_state, $field, $instance, $langc
           if (empty($ac_settings['components']) || in_array($key, $ac_settings['components'])) {
             if (!empty($ac_settings['list callback']) && function_exists($ac_settings['list callback'])) {
               $func = $ac_settings['list callback'];
-              $arguments = empty($ac_settings['list arguments']) ? array() : $ac_settings['list arguments'];
+              $arguments = empty($ac_settings['list arguments'])?array() : $ac_settings['list arguments'];
               if ($_options = $func($field, $key, $arguments)) {
                 $options = $_options;
                 break;
@@ -543,7 +543,7 @@ function _name_field_widget_form(&$form, &$form_state, $field, $instance, $langc
         }
       }
 
-      if (isset($ws['inline_css'][$key]) && drupal_strlen($ws['inline_css'][$key])) {
+      if (isset($ws['inline_css'][$key]) && backdrop_strlen($ws['inline_css'][$key])) {
         $element['#components'][$key]['attributes'] = array(
           'style' => $ws['inline_css'][$key],
         );
@@ -573,7 +573,7 @@ function _name_field_get_options($field, $key) {
         if ($vid = _name_get_vocabulary_id_by_code_or_number($matches[1])) {
           $max_length = isset($fs['max_length'][$key]) ? $fs['max_length'][$key] : 255;
           foreach (taxonomy_get_tree($vid) as $term) {
-            if (drupal_strlen($term->name) <= $max_length) {
+            if (backdrop_strlen($term->name) <= $max_length) {
               $options[] = $term->name;
             }
           }
@@ -591,10 +591,10 @@ function _name_field_get_options($field, $key) {
   foreach ($options as $index => $opt) {
     if (strpos($opt, '--') === 0) {
       unset($options[$index]);
-      $default = drupal_substr($opt, 2);
+      $default = backdrop_substr($opt, 2);
     }
   }
-  $options = drupal_map_assoc(array_map('trim', $options));
+  $options = backdrop_map_assoc(array_map('trim', $options));
   if ($default !== FALSE) {
     $options = array('' => $default) + $options;
   }

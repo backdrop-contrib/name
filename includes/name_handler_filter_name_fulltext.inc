@@ -66,7 +66,7 @@ class name_handler_filter_name_fulltext extends views_handler_filter {
       '#size' => 15,
       '#default_value' => $this->value,
       '#attributes' => array('title' => t('Enter the name you wish to search for.')),
-      '#title' => empty($form_state['exposed']) ? t('Value') : '',
+      '#title' => empty($form_state['exposed'])?t('Value') : '',
     );
   }
 
@@ -92,7 +92,7 @@ class name_handler_filter_name_fulltext extends views_handler_filter {
    *
    */
   public function op_contains($fulltext_field) {
-    $value = drupal_strtolower($this->value);
+    $value = backdrop_strtolower($this->value);
     $placeholder = $this->placeholder();
     $this->query->add_where_expression($this->options['group'], "$fulltext_field LIKE $placeholder", array($placeholder => '% ' . db_like($value) . '%'));
   }
@@ -101,14 +101,14 @@ class name_handler_filter_name_fulltext extends views_handler_filter {
    *
    */
   public function op_word($fulltext_field) {
-    $where = $this->operator == 'word' ? db_or() : db_and();
+    $where = $this->operator == 'word'?db_or() : db_and();
 
     // Don't filter on empty strings.
     if (empty($this->value)) {
       return;
     }
 
-    $value = drupal_strtolower($this->value);
+    $value = backdrop_strtolower($this->value);
 
     $words = preg_split('/ /', $value, -1, PREG_SPLIT_NO_EMPTY);
     foreach ($words as $word) {

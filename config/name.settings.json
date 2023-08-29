@@ -1,0 +1,13 @@
+{
+    "_config_name": "name.settings",
+    "name_user_preferred": false,
+    "name_example_names": "dynamic value in file /name/name.admin.inc line 212",
+    "name_example_names_field_name": "dynamic variable in file /name/name.admin.inc line 214",
+    "name_devel_generate_names": "_name_devel_generate_name",
+    "name_settings": [],
+    "name_component_required_marker": "*",
+    "name_field_part_overrides": "0",
+    "name_inline_styles_rtl": "float: right; margin-left: 1em;",
+    "name_inline_styles": "float: left; margin-right: 1em;",
+    "name_element_wrapper": "1"
+}

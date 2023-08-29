@@ -136,7 +136,7 @@ function _name_generate_tokens($name_components, $settings = array()) {
 }
 
 /**
- * @todo Look at replacing the raw string functions with the Drupal equivalent
+ * @todo Look at replacing the raw string functions with the Backdrop equivalent
  * functions. Will need to test this carefully...
  */
 function _name_format($name_components, $format = '', $settings = array(), $tokens = NULL) {
@@ -299,15 +299,15 @@ function _name_format_apply_modifiers($string, $modifiers) {
       for ($j = 0; $j < strlen($modifiers); $j++) {
         switch ($modifiers[$j]) {
           case 'L':
-            $string = drupal_strtolower($string);
+            $string = backdrop_strtolower($string);
             break;
 
           case 'U':
-            $string = drupal_strtoupper($string);
+            $string = backdrop_strtoupper($string);
             break;
 
           case 'F':
-            $string = drupal_ucfirst($string);
+            $string = backdrop_ucfirst($string);
             break;
 
           case 'G':
@@ -315,7 +315,7 @@ function _name_format_apply_modifiers($string, $modifiers) {
               $parts = explode(' ', $string);
               $string = array();
               foreach ($parts as $part) {
-                $string[] = drupal_ucfirst($part);
+                $string[] = backdrop_ucfirst($part);
               }
               $string = implode(' ', $string);
             }

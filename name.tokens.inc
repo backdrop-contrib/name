@@ -183,7 +183,7 @@ function name_tokens($type, $tokens, array $data = array(), array $options = arr
 
           }
           $names = implode(', ', array_filter($names));
-          $replacements[$original] = $sanitize ? check_plain($names) : $names;
+          $replacements[$original] = $sanitize?check_plain($names) : $names;
         }
       }
     }
@@ -196,7 +196,7 @@ function name_tokens($type, $tokens, array $data = array(), array $options = arr
         case 'realname':
           $replacements[$original] = '';
           if (!empty($account->realname)) {
-            $replacements[$original] = $sanitize ? check_plain($account->realname) : $account->realname;
+            $replacements[$original] = $sanitize?check_plain($account->realname) : $account->realname;
           }
           break;
       }
@@ -219,17 +219,17 @@ function name_tokens($type, $tokens, array $data = array(), array $options = arr
       if ($key == 'default') {
         // Full default formatted name.
         $default = name_format($name_components, name_settings('default_format'));
-        $replacements[$original] = $sanitize ? check_plain($default) : $default;
+        $replacements[$original] = $sanitize?check_plain($default) : $default;
       }
       elseif (strpos($key, 'formatter-') === 0) {
         list(, $machine_name) = explode('-', $key, 2);
         $format = name_get_format_by_machine_name($machine_name);
         $formated_name = name_format($name_components, $format);
-        $replacements[$original] = $sanitize ? check_plain($formated_name) : $formated_name;
+        $replacements[$original] = $sanitize?check_plain($formated_name) : $formated_name;
       }
       elseif (strpos($key, 'component-') === 0) {
         list(, $component) = explode('-', $key, 2);
-        $replacements[$original] = $sanitize ? check_plain($name_components[$component]) : $name_components[$component];
+        $replacements[$original] = $sanitize?check_plain($name_components[$component]) : $name_components[$component];
       }
     }
   }
@@ -245,20 +245,28 @@ function name_tokens($type, $tokens, array $data = array(), array $options = arr
  */
 function name_token_types_chained($type = NULL, $reset = FALSE) {
   // This functions gets called rather often when replacing tokens.
-  static $drupal_static_fast;
-  if (!isset($drupal_static_fast)) {
-    $drupal_static_fast['types'] = &drupal_static(__FUNCTION__);
+  static $backdrop_static_fast;
+  if (!isset($backdrop_static_fast)) {
+    $backdrop_static_fast['types'] = &backdrop_static(__FUNCTION__);
   }
-  $types = &$drupal_static_fast['types'];
+  $types = &$backdrop_static_fast['types'];
 
   if (!isset($types) || $reset) {
     // Note that this hook contains translated strings, so each language is
     // cached separately.
     global $language;
-    $langcode = $language->language;
+
+
+    // no clue if this is correct 
+    $langcode = $language->langcode;
     if (!$reset && $cache = cache_get("name_token_types_chained:$langcode", 'cache')) {
       $types = $cache->data;
     }
+
+//    $langcode = $language->language;
+//    if (!$reset && $cache = cache_get("name_token_types_chained:$langcode", 'cache')) {
+//      $types = $cache->data;
+//    }
 
     if (!$types) {
       $types = array();

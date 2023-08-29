@@ -61,11 +61,11 @@ function name_autocomplete($field_name, $target, $string = '') {
     $action = array();
     switch ($target) {
       case 'name':
-        $action['components'] = drupal_map_assoc(array('given', 'middle', 'family'));
+        $action['components'] = backdrop_map_assoc(array('given', 'middle', 'family'));
         break;
 
       case 'name-all':
-        $action['components'] = drupal_map_assoc($all_components);
+        $action['components'] = backdrop_map_assoc($all_components);
         break;
 
       default:
@@ -108,13 +108,13 @@ function name_autocomplete($field_name, $target, $string = '') {
 
     // We should have nice clean parameters to query.
     if (!empty($pieces) && !empty($action['components'])) {
-      $test_string = drupal_strtolower(array_pop($pieces));
-      $base_string = drupal_substr($string, 0, drupal_strlen($string) - drupal_strlen($test_string));
+      $test_string = backdrop_strtolower(array_pop($pieces));
+      $base_string = backdrop_substr($string, 0, backdrop_strlen($string) - backdrop_strlen($test_string));
 
       foreach ($action['source'] as $ac_action => $components) {
         if ($field || !empty($autocomplete_sources[$ac_action]['autonomous'])) {
           $func = $autocomplete_sources[$ac_action]['autocomplete callback'];
-          $arguments = empty($autocomplete_sources[$ac_action]['autocomplete arguments']) ? array() : $autocomplete_sources[$ac_action]['autocomplete arguments'];
+          $arguments = empty($autocomplete_sources[$ac_action]['autocomplete arguments'])?array() : $autocomplete_sources[$ac_action]['autocomplete arguments'];
           if (function_exists($func)) {
             $results = $func($action['source'][$ac_action], $base_string, $test_string, $field, $limit, $arguments);
             foreach ($results as $name => $safe_name) {
@@ -127,7 +127,7 @@ function name_autocomplete($field_name, $target, $string = '') {
     }
   }
 
-  drupal_json_output($matches);
+  backdrop_json_output($matches);
 }
 
 /**
@@ -136,6 +136,7 @@ function name_autocomplete($field_name, $target, $string = '') {
 function name_admin_settings_form($form, &$form_state) {
   $settings = name_settings();
 
+  $form['#config'] = 'name.settings';
   $form['#validate'][] = 'name_admin_settings_form_validate';
   $form['name_settings'] = array('#tree' => TRUE);
   $form['name_settings']['default_format'] = array(
@@ -183,6 +184,7 @@ function name_admin_settings_form_validate($form, &$form_state) {
  *   This will empty (set to "") any specified values.
  */
 function name_example_names($excluded_components = array(), $field_name = NULL) {
+  $config = config('name.settings');
   $example_names = array(
     1 => array(
       'title' => 'Mr',
@@ -209,9 +211,9 @@ function name_example_names($excluded_components = array(), $field_name = NULL) 
       'credentials' => '',
     ),
   );
-  $example_names = variable_get('name_example_names', $example_names);
+  $example_names = $config->get('name_example_names');
   if (isset($field_name)) {
-    $example_names = variable_get('name_example_names_' . $field_name, $example_names);
+    $example_names = $config->get('name_example_names_' . $field_name);
   }
   foreach ($example_names as $delta => $example_name) {
     foreach ($example_name as $component => $value) {
@@ -263,7 +265,10 @@ function name_list_custom_formats() {
     else {
       $row[] = l(t('Edit'), 'admin/config/content/name/settings');
     }
-    $rows[] = array('data' => $row, 'id' => 'name-' . $ncfid);
+    $rows[] = array(
+      'data' => $row,
+      'id' => 'name-' . $ncfid,
+    );
   }
 
   $help = '<p><strong>' . t('The three examples are for the following users:') . '</strong><p>';
@@ -402,17 +407,17 @@ function name_custom_formats_form_validate($form, &$form_state) {
 function name_custom_formats_form_submit($form, &$form_state) {
   $values = $form_state['values'];
   if (empty($values['ncfid'])) {
-    drupal_write_record('name_custom_format', $values);
+    backdrop_write_record('name_custom_format', $values);
     $message = 'Custom format %name has been created.';
   }
   else {
-    drupal_write_record('name_custom_format', $values, 'ncfid');
+    backdrop_write_record('name_custom_format', $values, 'ncfid');
     $message = 'Custom format %name has been updated.';
   }
-  drupal_set_message(t($message, array('%name' => $values['name'])));
+  backdrop_set_message(t($message, array('%name' => $values['name'])));
 
   // Reset the static so the next load will pickup any name changes.
-  drupal_static_reset('name_get_format_by_machine_name');
+  backdrop_static_reset('name_get_format_by_machine_name');
 
   $form_state['redirect'] = 'admin/config/content/name';
 }
@@ -422,14 +427,14 @@ function name_custom_formats_form_submit($form, &$form_state) {
  */
 function name_custom_format_edit($ncfid) {
   if ((isset($_POST['op']) && $_POST['op'] == t('Delete')) || isset($_POST['confirm'])) {
-    return drupal_get_form('name_custom_format_delete_form', $ncfid);
+    return backdrop_get_form('name_custom_format_delete_form', $ncfid);
   }
 
   if ($name = db_query("SELECT ncf.* FROM {name_custom_format} ncf WHERE ncfid = :ncfid", array(':ncfid' => $ncfid))->fetchAssoc()) {
-    return drupal_get_form('name_custom_formats_form', $name);
+    return backdrop_get_form('name_custom_formats_form', $name);
   }
-  drupal_set_message(t('The custom format could not be found.'), 'error');
-  drupal_goto('admin/config/content/name');
+  backdrop_set_message(t('The custom format could not be found.'), 'error');
+  backdrop_goto('admin/config/content/name');
 }
 
 /**
@@ -439,8 +444,8 @@ function name_custom_format_delete_form($form, $form_state, $ncfid) {
   $name = db_query("SELECT ncf.* FROM {name_custom_format} ncf WHERE ncfid = :ncfid", array(':ncfid' => $ncfid))->fetchAssoc();
 
   if (!$name) {
-    drupal_set_message(t('The custom format could not be found.'), 'error');
-    drupal_goto('admin/config/content/name');
+    backdrop_set_message(t('The custom format could not be found.'), 'error');
+    backdrop_goto('admin/config/content/name');
   }
   $form = array();
   $form['ncfid'] = array(
@@ -466,7 +471,7 @@ function name_custom_format_delete_form_submit($form, &$form_state) {
   db_delete('name_custom_format')
     ->condition('ncfid', $form_state['values']['ncfid'])
     ->execute();
-  drupal_set_message(t('The custom name format %name was deleted.',
+  backdrop_set_message(t('The custom name format %name was deleted.',
       array('%name' => $form['#name']['name'])));
   $form_state['redirect'] = 'admin/config/content/name';
 }

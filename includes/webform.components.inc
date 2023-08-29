@@ -91,8 +91,8 @@ function _webform_edit_name($name) {
     '#options' => $components,
   );
 
-  $user_field_name = variable_get('name_user_preferred', '');
-  $user_field = $user_field_name ? field_info_instance('user', $user_field_name, 'user') : NULL;
+  $user_field_name = config_get('name.settings', 'name_user_preferred');
+  $user_field = $user_field_name?field_info_instance('user', $user_field_name, 'user') : NULL;
   $form['extra']['use_real_name'] = array(
     '#type' => 'checkbox',
     '#title' => t('Use users real name field as default'),
@@ -223,7 +223,7 @@ function _webform_render_name($name, $value = NULL, $filter = TRUE) {
   if (empty($value)) {
     $found = FALSE;
     if (!empty($name['extra']['use_real_name'])) {
-      if ($user_field_name = variable_get('name_user_preferred', '')) {
+      if ($user_field_name = config_get('name.settings', 'name_user_preferred')) {
         name_username_alter_preload($user);
         if ($items = field_get_items('user', $user, $user_field_name)) {
           $item = reset($items);
@@ -251,19 +251,19 @@ function _webform_render_name($name, $value = NULL, $filter = TRUE) {
 
     foreach ($enabled_components as $component_key) {
       $max_length = $name['extra']['components'][$component_key]['max_length'];
-      if (drupal_strlen($default_value[$component_key]) > $max_length) {
-        $default_value[$component_key] = drupal_substr($default_value[$component_key], 0, $max_length);
+      if (backdrop_strlen($default_value[$component_key]) > $max_length) {
+        $default_value[$component_key] = backdrop_substr($default_value[$component_key], 0, $max_length);
       }
     }
   }
 
   $form_item = array(
     '#type' => 'name_element',
-    '#title' => $filter ? _webform_filter_xss($name['name']) : $name['name'],
+    '#title' => $filter?_webform_filter_xss($name['name']) : $name['name'],
     '#required' => $name['required'],
     '#weight' => $name['weight'],
-    '#description'   => $filter ? _webform_filter_descriptions($name['extra']['description']) : $name['extra']['description'],
-    '#default_value' => $filter ? _webform_filter_values($name['value']) : $name['value'],
+    '#description' => $filter?_webform_filter_descriptions($name['extra']['description']) : $name['extra']['description'],
+    '#default_value' => $filter?_webform_filter_values($name['value']) : $name['value'],
     '#prefix' => '<div class="webform-component-name" id="webform-component-' . $name['form_key'] . '">',
     '#suffix' => '</div>',
     '#minimum_components' => $name['extra']['minimum_components'],
@@ -288,7 +288,7 @@ function _webform_display_name($name, $value, $format = 'html') {
     '#title' => $name['name'],
     '#weight' => $name['weight'],
     '#theme' => 'webform_display_textfield',
-    '#theme_wrappers' => $format == 'html' ? array('webform_element') : array('webform_element_text'),
+    '#theme_wrappers' => $format == 'html'?array('webform_element') : array('webform_element_text'),
     '#post_render' => array('webform_element_wrapper'),
     '#component' => $name,
     '#format' => $format,

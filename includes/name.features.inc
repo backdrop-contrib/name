@@ -80,7 +80,7 @@ function namefield_features_rebuild($module) {
             $settings[$key] = $format->$key;
           }
         }
-        variable_set('name_settings', $settings);
+        config_set('name.settings', 'name_settings', $settings);
       }
       else {
         if (isset($format->ncfid)) {
@@ -88,12 +88,12 @@ function namefield_features_rebuild($module) {
         }
         db_merge('name_custom_format')
           ->key(array(
-            'machine_name' => $format->machine_name,
-          ))
+          'machine_name' => $format->machine_name,
+        ))
           ->fields(array(
-            'name' => $format->name,
-            'format' => $format->format,
-          ))
+          'name' => $format->name,
+          'format' => $format->format,
+        ))
           ->execute();
       }
     }

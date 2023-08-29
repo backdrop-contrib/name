@@ -44,7 +44,7 @@ function name_feeds_set_target($source, $entity, $target, $value) {
   list($field_name, $sub_field) = explode(':', $target);
 
   // We will call this multiple times, preserve existing values.
-  $field = empty($entity->{$field_name}) ? array() : $entity->{$field_name};
+  $field = empty($entity->{$field_name})?array() : $entity->{$field_name};
 
   foreach ($value as $v) {
     if (!is_array($v) && !is_object($v)) {
