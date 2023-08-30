@@ -139,11 +139,12 @@ function _webform_edit_name($name) {
       ),
     );
     $form['extra']['components'][$key]['size'] = array(
-      '#type' => 'textfield',
+      '#type' => 'number',
       '#title' => t('HTML size property'),
       '#default_value' => $name['extra']['components'][$key]['size'],
       '#size' => 10,
-      '#element_validate' => array('_element_validate_integer_positive'),
+      '#min' => 1,
+      '#max' => 255,
     );
     $form['extra']['components'][$key]['inline_css'] = array(
       '#type' => 'textfield',
@@ -151,12 +152,13 @@ function _webform_edit_name($name) {
       '#default_value' => $name['extra']['components'][$key]['inline_css'],
     );
     $form['extra']['components'][$key]['max_length'] = array(
-      '#type' => 'textfield',
+      '#type' => 'number',
       '#title' => t('Maximum length'),
       '#default_value' => empty($name['extra']['components'][$key]['max_length']) ? 255 : $name['extra']['components'][$key]['max_length'],
       '#required' => TRUE,
       '#size' => 10,
-      '#element_validate' => array('_element_validate_integer_positive'),
+      '#min' => 1,
+      '#max' => 255,
     );
     if ($key == 'title' || $key == 'generational') {
       $options = implode("\n", array_filter(explode("\n", $name['extra']['components'][$key]['options'])));

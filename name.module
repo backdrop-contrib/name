@@ -1403,6 +1403,7 @@ function name_field_formatter_settings_summary($field, $instance, $view_mode) {
   $used_components = array_filter($field['settings']['components']);
   $excluded_components = array_diff_key($used_components, _name_translations());
   $examples = name_example_names($excluded_components, $field['field_name']);
+
   if ($examples && $example = array_shift($examples)) {
     $format = name_get_format_by_machine_name($machine_name);
     $formatted = check_plain(name_format($example, $format));

@@ -317,13 +317,14 @@ function _name_field_instance_settings_form($field, $instance = NULL) {
     );
 
     $form['size'][$key] = array(
-      '#type' => 'textfield',
+      '#type' => 'number',
       '#title' => t('HTML size property for !title', array('!title' => $title)),
       '#default_value' => isset($settings['size']) ? $settings['size'][$key] : '',
       '#required' => FALSE,
       '#size' => 10,
       '#description' => t('The maximum length of the field in characters. This must be between 1 and 255.'),
-      '#element_validate' => array('_element_validate_integer_positive'),
+      '#min' => 1,
+      '#max' => 255,
     );
     $form['title_display'][$key] = array(
       '#type' => 'radios',

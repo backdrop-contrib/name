@@ -215,8 +215,8 @@ function name_example_names($excluded_components = array(), $field_name = NULL) 
   if (isset($field_name)) {
     $example_names = $config->get('name_example_names_' . $field_name);
   }
-  foreach ($example_names as $delta => $example_name) {
-    foreach ($example_name as $component => $value) {
+  foreach ((array) $example_names as $delta => $example_name) {
+    foreach ((array) $example_name as $component => $value) {
       if (in_array($component, $excluded_components)) {
         $example_names[$delta][$component] = '';
       }
