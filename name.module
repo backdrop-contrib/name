@@ -1809,7 +1809,7 @@ function name_clean_name_component($name, $data_key = 'user_data', $letters = 'a
  * Implements hook_views_api().
  */
 function name_views_api() {
-  return array('version' => '3.0');
+  return array('api' => '3.0');
 }
 
 /**
