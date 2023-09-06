@@ -291,7 +291,7 @@ function _webform_display_name($name, $value, $format = 'html') {
     '#weight' => $name['weight'],
     '#theme' => 'webform_display_textfield',
     '#theme_wrappers' => $format == 'html'?array('webform_element') : array('webform_element_text'),
-    '#post_render' => array('webform_element_wrapper'),
+//    '#post_render' => array('webform_element_wrapper'),
     '#component' => $name,
     '#format' => $format,
     '#value' => $themed_name,
