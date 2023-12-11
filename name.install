@@ -94,15 +94,6 @@ function name_uninstall() {
   config_clear('name.settings', 'name_component_required_marker');
 }
 
-// TODO The old hook_update_N functions cannot be applied to Backdrop.
-function name_update_6000() { }
-
-// TODO The old hook_update_N functions cannot be applied to Backdrop.
-function name_update_7000() { }
-
-// TODO The old hook_update_N functions cannot be applied to Backdrop.
-function name_update_7002() { }
-
 /**
  * Inserts some common formats.
  */
