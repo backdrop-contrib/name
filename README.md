@@ -32,6 +32,7 @@ Credits
 -------
 
 - Ported to Backdrop CMS by Eric Aitala (https://github.com/aitala).
+- Assisted by Laryn Kragt Bakker (https://github.com/laryn).
 - Originally written for Drupal by Alan D. - http://drupal.org/user/54136
 - Inital development sponsored by Penn State
 
