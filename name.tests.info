@@ -1,5 +1,5 @@
 [NameTestHelper]
-name = NameTestHelper
+name = Name test helper
 description = NameTestHelper
 group = name
 file = tests/name.test
@@ -10,14 +10,14 @@ description = Test basic, low-level name functions.
 group = Name
 file = tests/name.test
 
-[Name_AdminTestCase]
-name = Admin Setting Pages
+[NameAdminTestCase]
+name = Name admin setting pages
 description = Various tests on the admin area settings.
 group = Name
 file = tests/name.test
 
-[Name_FieldTestCase]
-name = Node Name Field
+[NameFieldTestCase]
+name = Name field on node
 description = Various tests on creating a name field on a node.
 group = Name
 file = tests/name.test
