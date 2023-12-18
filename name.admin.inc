@@ -80,7 +80,7 @@ function name_autocomplete($field_name, $target, $string = '') {
     }
 
     $action['source'] = array();
-    $action['separater'] = '';
+    $action['separator'] = '';
 
     $separator_characters = '';
     foreach ($action['components'] as $component) {
@@ -102,9 +102,9 @@ function name_autocomplete($field_name, $target, $string = '') {
       }
     }
 
-    $action['separater'] = count_chars($separator_characters, 3);
+    $action['separator'] = count_chars($separator_characters, 3);
 
-    $pieces = preg_split('/[' . preg_quote($action['separater']) . ']+/', $string);
+    $pieces = preg_split('/[' . preg_quote($action['separator']) . ']+/', $string);
 
     // We should have nice clean parameters to query.
     if (!empty($pieces) && !empty($action['components'])) {

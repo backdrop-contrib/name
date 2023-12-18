@@ -8,7 +8,7 @@
 /**
  * Implements hook_field_schema().
  *
- * There is no path backwards in Backdrop 7 when it comes to dropping columns or
+ * There is no path backwards in Backdrop when it comes to dropping columns or
  * reducing the size of the columns (via coresponence mid 2010). So as a varchar
  * is just the data + a terminator byte, all fields get all columns with vc(255).
  */
