@@ -183,7 +183,7 @@ function name_admin_settings_form_validate($form, &$form_state) {
  * @param array $excluded_components
  *   This will empty (set to "") any specified values.
  */
-function name_example_names($excluded_components = array(), $field_name = NULL) {
+function name_example_names_($excluded_components = array(), $field_name = NULL) {
   $config = config('name.settings');
   $example_names = array(
     1 => array(
@@ -211,7 +211,6 @@ function name_example_names($excluded_components = array(), $field_name = NULL) 
       'credentials' => '',
     ),
   );
-  $example_names = $config->get('name_example_names');
   if (isset($field_name)) {
     $example_names = $config->get('name_example_names_' . $field_name);
   }

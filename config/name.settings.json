@@ -1,35 +1,6 @@
 {
     "_config_name": "name.settings",
     "name_user_preferred": false,
-    "name_example_names": {
-	"1":
-	{
-		"title": "Mr",
-		"given": "Joe",
-		"middle": "John Peter Mark",
-		"family": "Doe",
-		"generational": "Jnr.",
-		"credentials": "B.Sc., Ph.D."
-	},
-	"2":
-	{
-		"title": "",
-		"given": "JOAN",
-		"middle": "SUE",
-		"family": "DOE",
-		"generational": "",
-		"credentials": ""
-	},
-	"3":
-	{
-		"title": "",
-		"given": "Prince",
-		"middle": "",
-		"family": "",
-		"generational": "",
-		"credentials": ""
-	}
-    },
     "name_example_names_field_name": "",
     "name_devel_generate_names": "_name_devel_generate_name",
     "name_settings": [],
