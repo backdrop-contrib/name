@@ -211,6 +211,7 @@ function name_example_names_($excluded_components = array(), $field_name = NULL)
       'credentials' => '',
     ),
   );
+
   if (isset($field_name)) {
     $example_names = $config->get('name_example_names_' . $field_name);
   }
