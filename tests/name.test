@@ -84,17 +84,6 @@ class NameTestHelper extends BackdropWebTestCase {
 class NameUnitTestCase extends NameTestHelper {
 
   /**
-   *
-   */
-  public static function getInfo() {
-    return array(
-      'name' => 'Name unit tests',
-      'description' => 'Test basic, low-level name functions.',
-      'group' => 'Name',
-    );
-  }
-
-  /**
    * Test name_format().
    */
   public function testGetInvalidTokens() {
@@ -311,18 +300,7 @@ class NameUnitTestCase extends NameTestHelper {
 /**
  * Tests for the admin settings and custom format page.
  */
-class Name_AdminTestCase extends NameTestHelper {
-
-  /**
-   *
-   */
-  public static function getInfo() {
-    return array(
-      'name' => 'Admin Setting Pages',
-      'description' => 'Various tests on the admin area settings.',
-      'group' => 'Name',
-    );
-  }
+class NameAdminTestCase extends NameTestHelper {
 
   /**
    * The most basic test. This should only fail if there is a change to the
@@ -350,60 +328,60 @@ class Name_AdminTestCase extends NameTestHelper {
     );
     $all_values = array(
       0 => array(
-        'title href' => $base_path . '?q=admin/config/content/name/settings',
+        'title href' => $base_path . 'admin/config/content/name/settings',
         'title' => t('Default'),
         'machine' => 'default',
         'code' => '((((t+ig)+im)+if)+is)+jc',
         'formatted' => 'Mr Joe John Peter Mark Doe Jnr., B.Sc., Ph.D. JOAN SUE DOE Prince ',
       ),
       1 => array(
-        'title href' => $base_path . '?q=admin/config/content/name/1',
+        'title href' => $base_path . 'admin/config/content/name/1',
         'title' => t('Full'),
         'machine' => 'full',
         'code' => '((((t+ig)+im)+if)+is)+jc',
         'formatted' => 'Mr Joe John Peter Mark Doe Jnr., B.Sc., Ph.D. JOAN SUE DOE Prince ',
         'edit' => t('Edit'),
-        'edit link' => $base_path . '?q=admin/config/content/name/1',
+        'edit link' => $base_path . 'admin/config/content/name/1',
         'delete' => t('Delete'),
-        'delete link' => $base_path . '?q=admin/config/content/name/1/delete',
+        'delete link' => $base_path . 'admin/config/content/name/1/delete',
       ),
       2 => array(
-        'title href' => $base_path . '?q=admin/config/content/name/2',
+        'title href' => $base_path . 'admin/config/content/name/2',
         'title' => t('Given'),
         'machine' => 'given',
         'code' => 'g',
         'formatted' => 'Joe JOAN Prince ',
         'edit' => t('Edit'),
-        'edit link' => $base_path . '?q=admin/config/content/name/2',
+        'edit link' => $base_path . 'admin/config/content/name/2',
         'delete' => t('Delete'),
-        'delete link' => $base_path . '?q=admin/config/content/name/2/delete',
+        'delete link' => $base_path . 'admin/config/content/name/2/delete',
       ),
       3 => array(
-        'title href' => $base_path . '?q=admin/config/content/name/3',
+        'title href' => $base_path . 'admin/config/content/name/3',
         'title' => t('Family'),
         'machine' => 'family',
         'code' => 'f',
         'formatted' => 'Doe DOE  ',
-        'edit link' => $base_path . '?q=admin/config/content/name/3',
-        'delete link' => $base_path . '?q=admin/config/content/name/3/delete',
+        'edit link' => $base_path . 'admin/config/content/name/3',
+        'delete link' => $base_path . 'admin/config/content/name/3/delete',
       ),
       4 => array(
-        'title href' => $base_path . '?q=admin/config/content/name/4',
+        'title href' => $base_path . 'admin/config/content/name/4',
         'title' => t('Title Family'),
         'machine' => 'formal',
         'code' => 't+if',
         'formatted' => 'Mr Doe DOE  ',
-        'edit link' => $base_path . '?q=admin/config/content/name/4',
-        'delete link' => $base_path . '?q=admin/config/content/name/4/delete',
+        'edit link' => $base_path . 'admin/config/content/name/4',
+        'delete link' => $base_path . 'admin/config/content/name/4/delete',
       ),
       5 => array(
-        'title href' => $base_path . '?q=admin/config/content/name/5',
+        'title href' => $base_path . 'admin/config/content/name/5',
         'title' => t('Given Family'),
         'machine' => 'short_full',
         'code' => 'g+if',
         'formatted' => 'Joe Doe JOAN DOE Prince ',
-        'edit link' => $base_path . '?q=admin/config/content/name/5',
-        'delete link' => $base_path . '?q=admin/config/content/name/5/delete',
+        'edit link' => $base_path . 'admin/config/content/name/5',
+        'delete link' => $base_path . 'admin/config/content/name/5/delete',
       ),
     );
 
@@ -430,7 +408,7 @@ class Name_AdminTestCase extends NameTestHelper {
     $raw_xpath = $this->xpath('//tr[@id="name-0"]/td[5]/a/@href');
     $results = $raw_xpath?current($raw_xpath) : '__MISSING__';
 
-    $this->assertEqual($results, $base_path . '?q=admin/config/content/name/settings', "Testing edit link on row 0 using '//tr[@id=\"name-id\"]/td[1]/a/@href' and expecting $base_path . '?q=admin/config/content/name/settings', got '{$results}'.");
+    $this->assertEqual($results, $base_path . 'admin/config/content/name/settings', "Testing edit link on row 0 using '//tr[@id=\"name-id\"]/td[1]/a/@href' and expecting $base_path . 'admin/config/content/name/settings', got '{$results}'.");
 
     $this->backdropGet('admin/config/content/name/settings');
 
@@ -531,13 +509,13 @@ class Name_AdminTestCase extends NameTestHelper {
 
     $new_rows = array(
       6 => array(
-        'title href' => $base_path . '?q=admin/config/content/name/6',
+        'title href' => $base_path . 'admin/config/content/name/6',
         'title' => 'Test',
         'machine' => 'test',
         'code' => 'abc',
         'formatted' => 'abB.Sc., Ph.D. ab ab ',
-        'edit link' => $base_path . '?q=admin/config/content/name/6',
-        'delete link' => $base_path . '?q=admin/config/content/name/6/delete',
+        'edit link' => $base_path . 'admin/config/content/name/6',
+        'delete link' => $base_path . 'admin/config/content/name/6/delete',
       ),
     );
 
@@ -606,18 +584,7 @@ class Name_AdminTestCase extends NameTestHelper {
 /**
  * Tests for the admin settings and custom format page.
  */
-class Name_FieldTestCase extends NameTestHelper {
-
-  /**
-   *
-   */
-  public static function getInfo() {
-    return array(
-      'name' => 'Node Name Field',
-      'description' => 'Various tests on creating a name field on a node.',
-      'group' => 'Name',
-    );
-  }
+class NameFieldTestCase extends NameTestHelper {
 
   /**
    * The most basic test. This should only fail if there is a change to the
@@ -983,7 +950,7 @@ class Name_FieldTestCase extends NameTestHelper {
     $this->backdropLogin($web_user);
 
     // Go to own edit account page.
-    $this->backdropGet('user/' . $web_user->uid . '/edit');
+    $this->backdropGet('user/' . $web_user->uid . 'edit');
 
     // Assert expected fields.
     $expected_fields = array(
