@@ -5,4 +5,3 @@ package = Fields
 backdrop = 1.x
 type = module
 configure = admin/config/content/name
-
