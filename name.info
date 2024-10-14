@@ -2,7 +2,6 @@ name = Name Field
 description = Defines a persons name field type.
 dependencies[] = field
 package = Fields
-version = 1.0-dev
 backdrop = 1.x
 type = module
 configure = admin/config/content/name
