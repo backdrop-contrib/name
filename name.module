@@ -631,6 +631,7 @@ function name_element_expand($element, &$form_state, $complete_form) {
   }
 
   // Provides an override on the inline CSS.
+  $inline_css = '';
   if (!empty($element['#component_css'])) {
     if ($element['#component_css'] == '<none>') {
       $inline_css = '';
