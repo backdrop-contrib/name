@@ -378,26 +378,38 @@ function name_custom_formats_form($form, $form_state, $edit = array()) {
  */
 function name_custom_formats_form_validate($form, &$form_state) {
   $values = $form_state['values'];
-  // Ensure that the name is unique.
+  // Check if this is a new format or updating an existing one
   if (empty($values['ncfid'])) {
-    $count = db_query("SELECT 1 FROM {name_custom_format} WHERE name = :name", array(':name' => $values['name']))->fetchField();
-    $mcount = db_query("SELECT 1 FROM {name_custom_format} WHERE machine_name = :machine_name", array(':machine_name' => $values['machine_name']))->fetchField();
+    // Check for existing names and machine names in config
+    $existing_configs = config_get_names_with_prefix('name.format.');
+    foreach ($existing_configs as $config_name) {
+      $config_data = config_get($config_name);
+      if ($config_data['name'] == $values['name']) {
+        form_set_error('name', t('The name you have chosen is already in use.'));
+        break;
+      }
+      if ($config_data['machine_name'] == $values['machine_name']) {
+        form_set_error('machine_name', t('The machine-readable name you have chosen is already in use.'));
+        break;
+      }
+    }
+
+    // Validate machine name
+    if ($values['machine_name'] == 'default') {
+      form_set_error('machine_name', t('The machine-readable name you have chosen is reserved.'));
+    }
+    elseif (!preg_match("/^[a-z0-9_]+$/", $values['machine_name'])) {
+      form_set_error('machine_name', t('The machine-readable name must contain only lowercase letters, numbers, and underscores.'));
+    }
   }
   else {
-    $count = db_query("SELECT 1 FROM {name_custom_format} WHERE name = :name AND ncfid <> :ncfid", array(':name' => $values['name'], ':ncfid' => $values['ncfid']))->fetchField();
-    $mcount = db_query("SELECT 1 FROM {name_custom_format} WHERE machine_name = :machine_name AND ncfid <> :ncfid", array(':machine_name' => $values['machine_name'], ':ncfid' => $values['ncfid']))->fetchField();
-  }
-  if ($count) {
-    form_set_error('name', t('The name you have chosen is already in use.'));
-  }
-  if ($mcount) {
-    form_set_error('machine_name', t('The machine-readable name you have chosen is already in use.'));
-  }
-  elseif ($values['machine_name'] == 'default') {
-    form_set_error('machine_name', t('The machine-readable name you have chosen is reserved.'));
-  }
-  elseif (!preg_match("/^[a-z0-9_]+$/", $values['machine_name'])) {
-    form_set_error('machine_name', t('The machine-readable name must contain only lowercase letters, numbers, and underscores.'));
+    // For existing format, we don't validate uniqueness because it's an update
+    if ($values['machine_name'] == 'default') {
+      form_set_error('machine_name', t('The machine-readable name you have chosen is reserved.'));
+    }
+    elseif (!preg_match("/^[a-z0-9_]+$/", $values['machine_name'])) {
+      form_set_error('machine_name', t('The machine-readable name must contain only lowercase letters, numbers, and underscores.'));
+    }
   }
 }
 
@@ -406,14 +418,26 @@ function name_custom_formats_form_validate($form, &$form_state) {
  */
 function name_custom_formats_form_submit($form, &$form_state) {
   $values = $form_state['values'];
+
   if (empty($values['ncfid'])) {
-    backdrop_write_record('name_custom_format', $values);
+    // Create new config file
+    $config = config('name.format.' . $values['machine_name']);
+    $config->set('name', $values['name']);
+    $config->set('machine_name', $values['machine_name']);
+    $config->set('format', $values['format']);
+    $config->save();
     $message = 'Custom format %name has been created.';
   }
   else {
-    backdrop_write_record('name_custom_format', $values, 'ncfid');
+    // Update existing config file
+    $config = config('name.format.' . $values['machine_name']);
+    $config->set('name', $values['name']);
+    $config->set('machine_name', $values['machine_name']);
+    $config->set('format', $values['format']);
+    $config->save();
     $message = 'Custom format %name has been updated.';
   }
+
   backdrop_set_message(t($message, array('%name' => $values['name'])));
 
   // Reset the static so the next load will pickup any name changes.
@@ -430,8 +454,17 @@ function name_custom_format_edit($ncfid) {
     return backdrop_get_form('name_custom_format_delete_form', $ncfid);
   }
 
-  if ($name = db_query("SELECT ncf.* FROM {name_custom_format} ncf WHERE ncfid = :ncfid", array(':ncfid' => $ncfid))->fetchAssoc()) {
-    return backdrop_get_form('name_custom_formats_form', $name);
+  // Try to load from config
+  $config = config('name.format.' . $ncfid);
+  $format_data = $config->get();
+
+  if ($format_data && isset($format_data['name'])) {
+    $format = new stdClass();
+    $format->ncfid = $ncfid;
+    $format->name = $format_data['name'];
+    $format->machine_name = $format_data['machine_name'];
+    $format->format = $format_data['format'];
+    return backdrop_get_form('name_custom_formats_form', (array)$format);
   }
   backdrop_set_message(t('The custom format could not be found.'), 'error');
   backdrop_goto('admin/config/content/name');
@@ -441,9 +474,34 @@ function name_custom_format_edit($ncfid) {
  * Custom name format deletion form.
  */
 function name_custom_format_delete_form($form, $form_state, $ncfid) {
-  $name = db_query("SELECT ncf.* FROM {name_custom_format} ncf WHERE ncfid = :ncfid", array(':ncfid' => $ncfid))->fetchAssoc();
+  $config = config('name.format.' . $ncfid);
+  $format_data = $config->get();
 
-  if (!$name) {
+  if ($format_data && isset($format_data['name'])) {
+    $name = new stdClass();
+    $name->ncfid = $ncfid;
+    $name->name = $format_data['name'];
+    $name->machine_name = $format_data['machine_name'];
+    $name->format = $format_data['format'];
+
+    $form = array();
+    $form['ncfid'] = array(
+      '#type' => 'value',
+      '#value' => $ncfid,
+    );
+    $form['#name'] = (array) $name;
+    return confirm_form(
+      $form,
+      t('Are you sure you want to delete the custom format %name ("%format")?',
+        array('%name' => $name->name, '%format' => $name->format)
+      ),
+      'admin/config/content/name',
+      t('This action cannot be undone.'),
+      t('Delete'), t('Cancel')
+    );
+  }
+
+  if (!isset($name)) {
     backdrop_set_message(t('The custom format could not be found.'), 'error');
     backdrop_goto('admin/config/content/name');
   }
@@ -468,9 +526,11 @@ function name_custom_format_delete_form($form, $form_state, $ncfid) {
  * Submit handler for name_custom_format_delete_form().
  */
 function name_custom_format_delete_form_submit($form, &$form_state) {
-  db_delete('name_custom_format')
-    ->condition('ncfid', $form_state['values']['ncfid'])
-    ->execute();
+  $ncfid = $form_state['values']['ncfid'];
+
+  $config = config('name.format.' . $ncfid);
+  $config->delete();
+
   backdrop_set_message(t('The custom name format %name was deleted.',
       array('%name' => $form['#name']['name'])));
   $form_state['redirect'] = 'admin/config/content/name';
