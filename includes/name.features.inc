@@ -43,11 +43,7 @@ function namefield_features_export_render($module_name, $data, $export = NULL) {
       $format = (object) $format;
     }
     else {
-      $format = db_select('name_custom_format', 'ncf')
-        ->fields('ncf')
-        ->condition('machine_name', $name)
-        ->execute()->fetch();
-      unset($format->ncfid);
+      $format = (object) config_get('name.format.' . $name);
     }
     if ($format) {
       $format_export = features_var_export($format, '  ');
@@ -86,15 +82,10 @@ function namefield_features_rebuild($module) {
         if (isset($format->ncfid)) {
           unset($format->ncfid);
         }
-        db_merge('name_custom_format')
-          ->key(array(
-          'machine_name' => $format->machine_name,
-        ))
-          ->fields(array(
-          'name' => $format->name,
-          'format' => $format->format,
-        ))
-          ->execute();
+        $config = config('name.format.' . $format->machine_name);
+        $config->set('name', $format->name);
+        $config->set('format', $format->format);
+        $config->save();
       }
     }
   }

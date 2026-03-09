@@ -43,6 +43,11 @@ function name_config_info() {
     'label' => t('Name Field settings'),
     'group' => t('Configuration'),
   );
+  $prefixes['name.format'] = array(
+    'name_key' => 'machine_name',
+    'label_key' => 'name',
+    'group' => t('Name custom formats'),
+  );
   return $prefixes;
 }
 
@@ -324,10 +329,26 @@ function name_get_custom_formats() {
   static $formats;
   if (!isset($formats)) {
     $formats = array();
-    $result = db_query("SELECT * FROM {name_custom_format} ORDER BY name ASC");
-    foreach ($result as $row) {
-      $formats[$row->ncfid] = $row;
+
+    $configs = config_get_names_with_prefix('name.format.');
+
+    foreach ($configs as $config_name) {
+      $config_data = config_get($config_name);
+      // Extract the machine name from the config name
+      $machine_name = str_replace('name.format.', '', $config_name);
+
+      // Create a format object
+      $format = new stdClass();
+      $format->ncfid = $machine_name;  // Use machine name as identifier
+      $format->name = isset($config_data['name']) ? $config_data['name'] : '';
+      $format->machine_name = $machine_name;
+      $format->format = isset($config_data['format']) ? $config_data['format'] : '';
+
+      $formats[$machine_name] = $format;
     }
+
+    // Sort by name
+    backdrop_sort($formats, [SORT_STRING]);
   }
   return $formats;
 }
@@ -337,8 +358,8 @@ function name_get_custom_formats() {
  */
 function name_get_custom_format_options() {
   $options = array();
-  foreach (name_get_custom_formats() as $wcfid => $row) {
-    $options[$row->machine_name] = $row->name;
+  foreach (name_get_custom_formats() as $machine_name => $format) {
+    $options[$format->machine_name] = $format->name;
   }
   natcasesort($options);
   return $options;
@@ -364,7 +385,12 @@ function name_get_format_by_machine_name($machine_name) {
       $formats[$machine_name] = name_settings('default_format');
     }
     else {
-      $formats[$machine_name] = (string) db_query("SELECT format FROM {name_custom_format} WHERE machine_name = :machine_name", array(':machine_name' => $machine_name))->fetchField();
+      // Load from config
+      $config = config('name.format.' . $machine_name);
+      $format_data = $config->get('format');
+      if ($format_data) {
+        $formats[$machine_name] = $format_data;
+      }
     }
   }
 
@@ -1382,15 +1408,11 @@ function name_field_formatter_settings_summary($field, $instance, $view_mode) {
     $summary[] = t('Format: Default');
   }
   else {
-    $info = db_select('name_custom_format', 'n')
-      ->fields('n')
-      ->condition('machine_name', $machine_name)
-      ->execute()
-      ->fetchObject();
-    if ($info) {
+    $config = config('name.format.' . $machine_name);
+    if (!$config->isNew()) {
       $summary[] = t('Format: %format (@machine_name)', array(
-        '%format' => $info->name,
-        '@machine_name' => $info->machine_name,
+        '%format' => $config->get('name'),
+        '@machine_name' => $config->get('machine_name'),
       ));
     }
     else {
@@ -1764,6 +1786,8 @@ function name_translite_letters($base = 'a-zA-Z') {
  */
 function name_clean_name_component($name, $data_key = 'user_data', $letters = 'a-z') {
   $name = trim($name);
+
+  // Integration with namedb module.
   $settings = namedb_settings();
   $min = intval($settings[$data_key]['minimum_length']);
   if ($min <= 0) {

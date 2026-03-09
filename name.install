@@ -32,52 +32,12 @@ function name_field_schema($field) {
 }
 
 /**
- * Implements hook_schema().
- */
-function name_schema() {
-  $schema = array();
-  $schema['name_custom_format'] = array(
-    'fields' => array(
-      'ncfid' => array(
-        'description' => 'The primary identifier for a custom format.',
-        'type' => 'serial',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'name' => array(
-        'description' => 'The name to identify the custom format to a user.',
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ),
-      'machine_name' => array(
-        'description' => 'The machine name to identify the custom format to the system.',
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ),
-      'format' => array(
-        'description' => 'The format string to apply to names.',
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-      ),
-    ),
-    'primary key' => array('ncfid'),
-  );
-  return $schema;
-}
-
-/**
  * Implements hook_install().
  *
  * Inserts some common name formats into the database.
  */
 function name_install() {
   name_install_default_formats();
-  // Dynamically generated variable data was detected on the following lines.
-  // /name/name.admin.inc line 212
-  // /name/name.admin.inc line 214
 }
 
 /**
@@ -92,6 +52,13 @@ function name_uninstall() {
   config_clear('name.settings', 'name_inline_styles_rtl');
   config_clear('name.settings', 'name_element_wrapper');
   config_clear('name.settings', 'name_component_required_marker');
+
+  // Delete custom formats.
+  $names = config_get_names_with_prefix('name.format.');
+  foreach ($names as $config_name) {
+    $config = config($config_name);
+    $config->delete();
+  }
 }
 
 /**
@@ -128,13 +95,11 @@ function name_install_default_formats() {
   );
 
   foreach ($formats as $format) {
-    db_insert('name_custom_format')
-      ->fields(array(
-      'name' => $format['name'],
-      'machine_name' => $format['machine_name'],
-      'format' => $format['format'],
-    ))
-      ->execute();
+    $config = config('name.format.' . $format['machine_name']);
+    $config->set('name', $format['name']);
+    $config->set('machine_name', $format['machine_name']);
+    $config->set('format', $format['format']);
+    $config->save();
   }
 }
 
@@ -172,4 +137,32 @@ function name_update_1000() {
   update_variable_del('name_inline_styles_rtl');
   update_variable_del('name_inline_styles');
   update_variable_del('name_element_wrapper');
+}
+
+/**
+ * Migrate name custom formats to config files.
+ */
+function name_update_1001() {
+  if (db_table_exists('name_custom_format')) {
+    // Load all custom formats from the database.
+    $result = db_query("SELECT * FROM {name_custom_format} ORDER BY ncfid ASC");
+    $formats = array();
+    foreach ($result as $record) {
+      $formats[] = $record;
+    }
+
+    // Create a config file for each format.
+    foreach ($formats as $format) {
+      $config = config('name.format.' . $format->machine_name);
+      $config->set('name', $format->name);
+      $config->set('machine_name', $format->machine_name);
+      $config->set('format', $format->format);
+      $config->save();
+    }
+
+    // Remove the database table.
+    db_drop_table('name_custom_format');
+
+    return t('Migrated name custom formats to config files.');
+  }
 }
